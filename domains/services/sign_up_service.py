@@ -1,3 +1,8 @@
+"""
+Copyright © 2020 FC Tools. All rights reserved.
+Author: German Yakimov
+"""
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver

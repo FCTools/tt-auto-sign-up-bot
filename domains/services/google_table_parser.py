@@ -1,3 +1,8 @@
+"""
+Copyright © 2020 FC Tools. All rights reserved.
+Author: German Yakimov
+"""
+
 import os
 import pickle
 from pprint import pprint

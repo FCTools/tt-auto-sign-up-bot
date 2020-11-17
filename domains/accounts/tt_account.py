@@ -1,3 +1,8 @@
+"""
+Copyright © 2020 FC Tools. All rights reserved.
+Author: German Yakimov
+"""
+
 from domains.services.sign_up_service import SignUpService
 
 
