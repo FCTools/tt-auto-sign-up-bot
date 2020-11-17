@@ -13,3 +13,12 @@ class TikTokAccount:
         self._payment_type = credentials[9]
 
         self._signed_up = signed_up
+
+    def sign_up(self):
+        pass
+
+    def remove_from_account_to_sign_up(self):
+        pass
+
+    def add_to_signed_up_account(self):
+        pass
