@@ -6,11 +6,14 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
+from domains.accounts.tt_account import TikTokAccount
+
 
 class GoogleTableParser:
     def __init__(self):
-        self._credentials_filename = os.path.join("..", "credentials.json")
+        self._credentials_filename = os.path.join("../..", "credentials.json")
         self._service = None
+        self._headers = ['mail', 'password']
         self._scopes = ["https://www.googleapis.com/auth/spreadsheets"]
 
         self._load_credentials()
@@ -34,16 +37,7 @@ class GoogleTableParser:
 
         self._service = build('sheets', 'v4', credentials=creds)
 
-    def get_title(self, doc_id):
-        document = self._service.spreadsheets().get(spreadsheetId=doc_id).execute()
-        pprint(document)
+    def get_accounts_to_sign_up(self, doc_id):
+        document = self._service.spreadsheets().values().get(spreadsheetId=doc_id, range="A1:L100").execute()
 
-        print('The title of the document is: {}'.format(document.get('sheetId')))
-
-    def _get_files(self):
-        pprint(self._service.documents())
-        pprint(self._service.documents().list(pageSize=10, fields="nextPageToken, files(id, name, mimeType)").execute())
-
-
-service = GoogleTableParser()
-# service._get_files()
+        return document["values"][1:]
