@@ -1,3 +1,5 @@
+from domains.services.sign_up_service import SignUpService
+
 
 class TikTokAccount:
     def __init__(self, credentials, signed_up=False):
@@ -14,8 +16,18 @@ class TikTokAccount:
 
         self._signed_up = signed_up
 
+        self._sign_up_service = SignUpService()
+
     def sign_up(self):
-        pass
+        status = self._sign_up_service.sign_up(mail=self._mail,
+                                               password=self._password,
+                                               proxy=self._proxy,
+                                               user_agent=self._user_agent,
+                                               country=self._country,
+                                               company_website=self._company_website,
+                                               street_address=self._street_address,
+                                               postal_code=self._postal_code,
+                                               tax_id=self._tax_id)
 
     def remove_from_account_to_sign_up(self):
         pass
