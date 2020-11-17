@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# files with google credentials
+credentials.json
+token.pickle
+
 # Distribution / packaging
 .Python
 build/
