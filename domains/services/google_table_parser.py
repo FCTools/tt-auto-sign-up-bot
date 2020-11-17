@@ -43,6 +43,6 @@ class GoogleTableParser:
         self._service = build('sheets', 'v4', credentials=creds)
 
     def get_accounts_to_sign_up(self, doc_id):
-        document = self._service.spreadsheets().values().get(spreadsheetId=doc_id, range="A1:L100").execute()
+        document = self._service.spreadsheets().values().get(spreadsheetId=doc_id, range="A1:H500").execute()
 
         return document["values"][1:]
