@@ -2,6 +2,7 @@
 Copyright © 2020 FC Tools. All rights reserved.
 Author: German Yakimov
 """
+
 import time
 
 from selenium.webdriver.support.ui import WebDriverWait
@@ -36,6 +37,15 @@ class SignUpService(metaclass=Singleton):
 
         return webdriver.Chrome(options=chrome_options)
 
+    def _detect_screen(self, browser):
+        pass
+
+    def _solve_geo_selecting_screen(self, browser):
+        pass
+
+    def _solve_main_screen(self, browser):
+        pass
+
     def sign_up(self,
                 mail,
                 password,
@@ -56,7 +66,7 @@ class SignUpService(metaclass=Singleton):
         time.sleep(5)
         browser.find_element_by_xpath(login_xpath).send_keys(mail)
         browser.find_element_by_name("password").send_keys(password)
-        browser.find_element_by_name("repeatPws").send_keys(password)
+        browser.find_element_by_name("repeatPwd").send_keys(password)
         browser.find_element_by_xpath(agreement_checkbox_xpath).click()
         browser.find_element_by_xpath(verification_code_xpath).click()
 
