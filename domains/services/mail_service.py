@@ -1,4 +1,58 @@
+import imaplib
+import email
+import json
+from pprint import pprint
 
 
 class MailService:
-    pass
+    def __init__(self, imap_server='imap.mail.ru'):
+        self._mail_server = imap_server
+        self._sender = '"TikTok For Business" <no-reply@ads-service.tiktok.com>'
+
+    def find_verification_code(self, mail, password):
+        mailbox = imaplib.IMAP4_SSL(self._mail_server)
+        print(mailbox.login(mail, password))
+
+        verification_code_email = self._last_message_from_tik_tok(mailbox)
+        verification_code = self._parse_verification_code(verification_code_email)
+
+    def _last_message_from_tik_tok(self, mailbox):
+        emails_list = []
+
+        mailbox.select("inbox")
+        result, data = mailbox.search(None, "UNSEEN")
+
+        mails_ids_list = data[0].split()
+
+        for mail_id in mails_ids_list:
+            result, data = mailbox.fetch(mail_id, "(RFC822)")
+
+            raw_email = data[0][1]
+            parsed_email = email.message_from_bytes(raw_email)
+
+            if self.email_from_tik_tok(parsed_email):
+                emails_list.append((int(mail_id.decode('utf-8')), parsed_email))
+
+        max_id = 0
+        required_email = None
+
+        for mail in emails_list:
+            if mail[0] > max_id:
+                max_id = mail[0]
+                required_email = mail[1]
+
+        return required_email
+
+    def email_from_tik_tok(self, email_message):
+        return str(email_message["From"]) == self._sender
+
+    def _parse_verification_code(self, mail):
+        parts = []
+        for part in mail.walk():
+            content = part.get_payload()
+            if content:
+                parts.append(content.decode("utf-8"))
+
+        with open('tmp.json', 'w', encoding='utf-8') as file:
+            json.dump(parts, file, indent=4, ensure_ascii=False)
+

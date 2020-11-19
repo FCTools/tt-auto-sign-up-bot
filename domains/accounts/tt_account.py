@@ -11,10 +11,10 @@ class TikTokAccount:
         self._mail = credentials[0]
         self._password = credentials[1]
         self._proxy = credentials[2]
-        self._country = credentials[4]
-        self._company_website = credentials[5]
-        self._street_address = credentials[6]
-        self._postal_code = credentials[7]
+        self._country = credentials[3]
+        self._company_website = credentials[4]
+        self._street_address = credentials[5]
+        self._postal_code = credentials[6]
 
         self._signed_up = signed_up
 

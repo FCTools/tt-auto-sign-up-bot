@@ -35,3 +35,6 @@ class AccountManager:
 
 manager = AccountManager()
 accounts = manager.get_accounts_to_sign_up()
+
+for account in accounts:
+    account.sign_up()
