@@ -88,7 +88,6 @@ class SignUpService(metaclass=Singleton):
                 street_address,
                 postal_code):
         browser = self._build_browser(proxy)
-        browser.get("https://2ip.ru/")
         browser.get("https://ads.tiktok.com/i18n/signup/")
         time.sleep(10)
 
