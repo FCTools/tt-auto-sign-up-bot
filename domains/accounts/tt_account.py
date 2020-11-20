@@ -31,7 +31,10 @@ class TikTokAccount:
 
         if status != "OK":
             print(status)
-            # do smth to handle it
+            # do smth to handle it and write status to the table
+        else:
+            pass
+            # write about success registration to the table
 
     def remove_from_account_to_sign_up(self):
         pass

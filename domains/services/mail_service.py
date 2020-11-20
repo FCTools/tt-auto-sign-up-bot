@@ -16,6 +16,8 @@ class MailService:
         verification_code_email = self._last_message_from_tik_tok(mailbox)
         verification_code = self._parse_verification_code(verification_code_email)
 
+        return verification_code
+
     def _last_message_from_tik_tok(self, mailbox):
         emails_list = []
 
@@ -49,10 +51,13 @@ class MailService:
     def _parse_verification_code(self, mail):
         parts = []
         for part in mail.walk():
-            content = part.get_payload()
+            content = part.get_payload(decode=True)
             if content:
-                parts.append(content.decode("utf-8"))
+                parts.append(content.decode())
 
-        with open('tmp.json', 'w', encoding='utf-8') as file:
-            json.dump(parts, file, indent=4, ensure_ascii=False)
+        required_part = parts[-1]
+        required_part = required_part.split('customer')[1].split('Account')[1].split('code:')[1].split('align="left"')[1].replace('\n', '').replace('\r', '')
+        verification_code = required_part[1:].strip().split()[0]
+
+        return verification_code
 
