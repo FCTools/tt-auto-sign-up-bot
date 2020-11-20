@@ -48,10 +48,18 @@ class SignUpService(metaclass=Singleton):
         return webdriver.Chrome(options=chrome_options)
 
     def _detect_screen(self, browser):
-        email_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[1]/div[2]/div/div/label'
-        if len(browser.find_elements_by_xpath(email_xpath)) > 0:
-            return 1
-        return 2
+        # email_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[1]/div[2]/div/div/label'
+        # if len(browser.find_elements_by_xpath(email_xpath)) > 0:
+        #     return 1
+        # return 2
+        label_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/div[2]/div[2]/form/div[1]/label'
+        if len(browser.find_elements_by_xpath(label_xpath)) > 0:
+            element = browser.find_element_by_xpath(label_xpath)
+
+            if element and element.text == 'Your Billing Country/Region':
+                return 2
+
+        return 1
 
     def _solve_screen_1(self, browser, mail, password):
         login_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[1]/div[2]/div/div/div/input'
@@ -74,10 +82,34 @@ class SignUpService(metaclass=Singleton):
         # time.sleep(120)
         verification_code = self._mail_service.find_verification_code(mail, password)
 
-        return browser
+        return "OK", browser
 
-    def _solve_screen_2(self, browser):
-        return browser
+    def _solve_screen_2(self, browser, country):
+        time.sleep(5)
+        browser.find_element_by_class_name("vi-input__inner").click()
+        browser.find_element_by_class_name("vi-input__inner").send_keys(country)
+        time.sleep(1)
+        browser.find_element_by_class_name("vi-button--primary").click()
+
+        return "OK", browser
+
+    def _solve_screen_3(self, browser):
+        return "OK", browser
+
+    def _solve_screen_4(self, browser):
+        company_name_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[1]/div/div[1]/input'
+        fullname_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[2]/div/div[1]/input'
+        email_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[3]/div/div[1]/input'
+        phone_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[4]/div/div[1]/input'
+        checkbox_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[2]/div/div/label/span[1]/span'
+
+        submit_button_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/button'
+
+        if len(browser.find_elements_by_xpath(fullname_xpath)) > 0 and \
+           len(browser.find_elements_by_xpath(phone_xpath)) > 0:
+            return "Bad proxy for registration", browser
+
+        return "OK", browser
 
     def sign_up(self,
                 mail,
@@ -92,9 +124,14 @@ class SignUpService(metaclass=Singleton):
         time.sleep(10)
 
         if self._detect_screen(browser) == 1:
-            browser = self._solve_screen_1(browser, mail, password)
+            status, browser = self._solve_screen_1(browser, mail, password)
+            status, browser = self._solve_screen_3(browser)
         elif self._detect_screen(browser) == 2:
-            browser = self._solve_screen_2(browser)
+            status, browser = self._solve_screen_2(browser, country)
+            status, browser = self._solve_screen_4(browser)
+
+            if status != "OK":
+                return status
 
         # check inbox here, put it to field and click submit button
 

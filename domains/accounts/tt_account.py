@@ -29,6 +29,10 @@ class TikTokAccount:
                                                street_address=self._street_address,
                                                postal_code=self._postal_code)
 
+        if status != "OK":
+            print(status)
+            # do smth to handle it
+
     def remove_from_account_to_sign_up(self):
         pass
 
