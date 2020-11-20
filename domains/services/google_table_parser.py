@@ -46,3 +46,13 @@ class GoogleTableParser:
         document = self._service.spreadsheets().values().get(spreadsheetId=doc_id, range="A1:H500").execute()
 
         return document["values"][1:]
+
+    def _remove_account_from_list_1(self, account):
+        pass
+
+    def _add_account_to_list_2(self, account, status):
+        pass
+
+    def update_sign_up_status(self, account, status):
+        self._remove_account_from_list_1(account)
+        self._add_account_to_list_2(account, status)

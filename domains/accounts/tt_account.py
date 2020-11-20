@@ -35,9 +35,3 @@ class TikTokAccount:
         else:
             pass
             # write about success registration to the table
-
-    def remove_from_account_to_sign_up(self):
-        pass
-
-    def add_to_signed_up_account(self):
-        pass

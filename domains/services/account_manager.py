@@ -32,6 +32,9 @@ class AccountManager:
 
         return result
 
+    def update_sign_up_status(self, account, status):
+        self._table_parser.update_sign_up_status(account, status)
+
 
 manager = AccountManager()
 accounts = manager.get_accounts_to_sign_up()
