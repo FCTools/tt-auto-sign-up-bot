@@ -23,6 +23,8 @@ class GoogleTableParser:
 
         self._load_credentials()
 
+        self._done_accounts = self._filled_rows_on_page_2()
+
     def _load_credentials(self):
         creds = None
 
@@ -48,10 +50,29 @@ class GoogleTableParser:
 
         return document["values"][1:]
 
+    def _filled_rows_on_page_2(self):
+        portion = 10000
+        total_number = portion
+        result = 0
+
+        while True:
+            range_ = f"Result!A{total_number - portion + 1}:A{total_number}"
+            rows = self._service.spreadsheets().values().batchGet(spreadsheetId=self._doc_id,
+                                                                  ranges=[range_],
+                                                                  valueRenderOption='FORMATTED_VALUE',
+                                                                  dateTimeRenderOption='FORMATTED_STRING'
+                                                                  ).execute()['valueRanges'][0]['values'][1:]
+
+            if len(rows) < portion:
+                return result + len(rows) + 2
+            result += portion
+
+            total_number += portion
+
     def _find_row_number(self, account):
         rows = self.get_accounts_to_sign_up()
         for n, row in enumerate(rows):
-            if row[0] == account.email:
+            if row and row[0] == account.email:
                 return n + 2
         return -1
 
@@ -60,7 +81,7 @@ class GoogleTableParser:
         if row_number == -1:
             return
 
-        range_ = f"A{row_number}:H{row_number}"
+        range_ = f"A{row_number}:I{row_number}"
         value_input_option = "USER_ENTERED"
 
         request = self._service.spreadsheets().values().batchUpdate(spreadsheetId=self._doc_id,
@@ -70,14 +91,41 @@ class GoogleTableParser:
                                                                             {"range": range_,
                                                                              "majorDimension": "ROWS",
                                                                              "values": [
-                                                                                 ["", "", "", "", "", "", "", ""],
+                                                                                 ["", "", "", "", "", "", "", "", ""],
                                                                              ]}
                                                                         ]
                                                                     })
         response = request.execute()
 
     def _add_account_to_list_2(self, account, status):
-        pass
+        free_row = self._done_accounts
+        range_ = f"Result!A{free_row}:J{free_row}"
+
+        value_input_option = "USER_ENTERED"
+
+        request = self._service.spreadsheets().values().batchUpdate(spreadsheetId=self._doc_id,
+                                                                    body={
+                                                                        "valueInputOption": value_input_option,
+                                                                        "data": [
+                                                                            {"range": range_,
+                                                                             "majorDimension": "ROWS",
+                                                                             "values": [
+                                                                                 [account.email,
+                                                                                  account.password,
+                                                                                  account.proxy,
+                                                                                  account.country,
+                                                                                  account.company_website,
+                                                                                  account.street_address,
+                                                                                  account.postal_code,
+                                                                                  account.tax_id,
+                                                                                  status,
+                                                                                  account.payment_type],
+                                                                             ]}
+                                                                        ]
+                                                                    })
+        response = request.execute()
+
+        self._done_accounts += 1
 
     def update_sign_up_status(self, account, status):
         self._remove_account_from_list_1(account)

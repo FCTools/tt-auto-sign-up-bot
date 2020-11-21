@@ -16,6 +16,9 @@ class TikTokAccount:
         self._street_address = credentials[5]
         self._postal_code = credentials[6]
 
+        self._tax_id = credentials[7]
+        self._payment_type = None
+
         self._signed_up = signed_up
 
         self._sign_up_service = SignUpService()
@@ -23,6 +26,40 @@ class TikTokAccount:
     @property
     def email(self):
         return self._mail
+
+    @property
+    def password(self):
+        return self._password
+
+    @property
+    def proxy(self):
+        return self._proxy
+
+    @property
+    def country(self):
+        return self._country
+
+    @property
+    def company_website(self):
+        return self._company_website
+
+    @property
+    def street_address(self):
+        return self._street_address
+
+    @property
+    def postal_code(self):
+        return self._postal_code
+
+    @property
+    def tax_id(self):
+        return self._tax_id
+
+    @property
+    def payment_type(self):
+        if self._payment_type:
+            return self._payment_type
+        return "-"
 
     def sign_up(self):
         status = self._sign_up_service.sign_up(mail=self._mail,
