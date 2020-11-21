@@ -6,4 +6,4 @@ Author: German Yakimov
 from working_loop import WorkingLoop
 
 
-WorkingLoop.launch()
+WorkingLoop().launch()

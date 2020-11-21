@@ -81,6 +81,12 @@ class SignUpService(metaclass=Singleton):
         browser.find_element_by_xpath(agreement_checkbox_xpath).click()
         time.sleep(2)
         browser.find_element_by_xpath(verification_code_xpath_button).click()
+        time.sleep(3)
+
+        error_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[6]/div'
+        if len(browser.find_elements_by_xpath(error_xpath)) > 0 and \
+           browser.find_element_by_xpath(error_xpath).text == 'The email is already registered. Please log in.':
+            return "Email is already registered.", browser
 
         # time.sleep(120)
         verification_code = self._mail_service.find_verification_code(mail, password)
@@ -131,6 +137,11 @@ class SignUpService(metaclass=Singleton):
 
         if self._detect_screen(browser) == 1:
             status, browser = self._solve_screen_1(browser, mail, password)
+
+            if status != "OK":
+                browser.close()
+                return status
+
             status, browser = self._solve_screen_3(browser)
         elif self._detect_screen(browser) == 2:
             status, browser = self._solve_screen_2(browser, country)

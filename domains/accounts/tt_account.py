@@ -20,6 +20,10 @@ class TikTokAccount:
 
         self._sign_up_service = SignUpService()
 
+    @property
+    def email(self):
+        return self._mail
+
     def sign_up(self):
         status = self._sign_up_service.sign_up(mail=self._mail,
                                                password=self._password,
@@ -31,6 +35,7 @@ class TikTokAccount:
 
         if status != "OK":
             print(status)
+            return status
             # do smth to handle it and write status to the table
         else:
             pass

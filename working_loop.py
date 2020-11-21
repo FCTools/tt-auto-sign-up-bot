@@ -55,7 +55,8 @@ class WorkingLoop:
                 self._accounts_to_register.put(deepcopy(account))
 
     def _process(self):
-        self._sign_up_thread = Thread(target=self._accounts_register_process, daemon=True)
+        self._sign_up_thread = Thread(target=self._accounts_register_process, args=(), daemon=True)
+        self._sign_up_thread.start()
 
         while True:
             self._extend_queue()
