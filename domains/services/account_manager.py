@@ -4,7 +4,6 @@ Author: German Yakimov
 """
 
 import os
-from pprint import pprint
 
 from domains.accounts.tt_account import TikTokAccount
 from domains.services.google_table_parser import GoogleTableParser
@@ -34,10 +33,3 @@ class AccountManager:
 
     def update_sign_up_status(self, account, status):
         self._table_parser.update_sign_up_status(account, status)
-
-#
-# manager = AccountManager()
-# accounts = manager.get_accounts_to_sign_up()
-#
-# for account in accounts:
-#     account.sign_up()

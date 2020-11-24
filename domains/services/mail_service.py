@@ -1,7 +1,10 @@
-import imaplib
+"""
+Copyright © 2020 FC Tools. All rights reserved.
+Author: German Yakimov
+"""
+
 import email
-import json
-from pprint import pprint
+import imaplib
 
 
 class MailService:
@@ -56,8 +59,8 @@ class MailService:
                 parts.append(content.decode())
 
         required_part = parts[-1]
-        required_part = required_part.split('customer')[1].split('Account')[1].split('code:')[1].split('align="left"')[1].replace('\n', '').replace('\r', '')
+        required_part = required_part.split('customer')[1].split('Account')[1].split('code:')[1].split('align="left"')[
+            1].replace('\n', '').replace('\r', '')
         verification_code = required_part[1:].strip().split()[0]
 
         return verification_code
-

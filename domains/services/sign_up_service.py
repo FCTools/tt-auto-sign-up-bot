@@ -2,17 +2,13 @@
 Copyright © 2020 FC Tools. All rights reserved.
 Author: German Yakimov
 """
+
 import random
 import time
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support import expected_conditions
-
-from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
+from random_user_agent.user_agent import UserAgent
+from selenium import webdriver
 
 from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
@@ -51,10 +47,6 @@ class SignUpService(metaclass=Singleton):
 
     @staticmethod
     def _detect_screen(browser):
-        # email_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[1]/div[2]/div/div/label'
-        # if len(browser.find_elements_by_xpath(email_xpath)) > 0:
-        #     return 1
-        # return 2
         label_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/div[2]/div[2]/form/div[1]/label'
         if len(browser.find_elements_by_xpath(label_xpath)) > 0:
             element = browser.find_element_by_xpath(label_xpath)
@@ -85,7 +77,7 @@ class SignUpService(metaclass=Singleton):
 
         error_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[6]/div'
         if len(browser.find_elements_by_xpath(error_xpath)) > 0 and \
-           browser.find_element_by_xpath(error_xpath).text == 'The email is already registered. Please log in.':
+                browser.find_element_by_xpath(error_xpath).text == 'The email is already registered. Please log in.':
             return "Email is already registered.", browser
 
         # time.sleep(120)
@@ -185,7 +177,7 @@ class SignUpService(metaclass=Singleton):
         submit_button_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/button'
 
         if len(browser.find_elements_by_xpath(fullname_xpath)) > 0 and \
-           len(browser.find_elements_by_xpath(phone_xpath)) > 0:
+                len(browser.find_elements_by_xpath(phone_xpath)) > 0:
             return "Bad proxy for registration", browser
 
         return "OK", browser
@@ -219,11 +211,13 @@ class SignUpService(metaclass=Singleton):
         self._random_sleep()
         browser.find_element_by_xpath(industry_selector_xpath_1).click()
         self._random_sleep()
-        browser.find_element_by_xpath(f'//*[@id="first_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 25)}]').click()
+        browser.find_element_by_xpath(
+            f'//*[@id="first_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 25)}]').click()
         self._random_sleep()
         browser.find_element_by_xpath(industry_selector_xpath_2).click()
         self._random_sleep()
-        browser.find_element_by_xpath(f'//*[@id="second_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 5)}]').click()
+        browser.find_element_by_xpath(
+            f'//*[@id="second_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 5)}]').click()
         self._random_sleep()
         browser.find_element_by_xpath(street_address_xpath).send_keys(street_address)
         self._random_sleep()
@@ -231,7 +225,8 @@ class SignUpService(metaclass=Singleton):
         self._random_sleep()
         # browser.find_element_by_xpath(state_field_xpath).send_keys(self._random_state())
         # self._random_sleep()
-        browser.find_element_by_xpath(f'//*[@id="state"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 50)}]').click()
+        browser.find_element_by_xpath(
+            f'//*[@id="state"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 50)}]').click()
         self._random_sleep()
         browser.find_element_by_xpath(postal_code_xpath).click()
         self._random_sleep()
@@ -265,6 +260,8 @@ class SignUpService(metaclass=Singleton):
 
             status, browser = self._solve_screen_3(browser, mail, country)
             status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
+
+            browser.close()
             return status
 
         elif self._detect_screen(browser) == 2:
@@ -273,11 +270,3 @@ class SignUpService(metaclass=Singleton):
 
             browser.close()
             return status
-
-        # check inbox here, put it to field and click submit button
-
-        # browser.find_element_by_xpath(captcha_xpath).click()
-
-        # browser.find_element_by_xpath(submit_button_xpath).click()
-
-
