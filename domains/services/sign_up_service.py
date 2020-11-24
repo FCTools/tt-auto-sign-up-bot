@@ -49,7 +49,8 @@ class SignUpService(metaclass=Singleton):
 
         return webdriver.Chrome(options=chrome_options)
 
-    def _detect_screen(self, browser):
+    @staticmethod
+    def _detect_screen(browser):
         # email_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[1]/div[2]/div/div/label'
         # if len(browser.find_elements_by_xpath(email_xpath)) > 0:
         #     return 1
@@ -105,7 +106,8 @@ class SignUpService(metaclass=Singleton):
 
         return "OK", browser
 
-    def _random_phone_number(self):
+    @staticmethod
+    def _random_phone_number():
         first = str(random.randint(100, 999))
         second = str(random.randint(1, 888)).zfill(3)
         last = (str(random.randint(1, 9998)).zfill(4))
@@ -113,6 +115,13 @@ class SignUpService(metaclass=Singleton):
         while last in ['1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888']:
             last = (str(random.randint(1, 9998)).zfill(4))
         return f'{first}{second}{last}'
+
+    @staticmethod
+    def _random_state():
+        states = ['Washington', 'Utah', 'Arizona', 'California', 'Wisconsin', 'Maine', 'Nebraska', 'Minnesota',
+                  'New York', 'Michigan', 'Connecticut', 'Delaware', 'Pennsylvania', 'Indiana', 'South Carolina', ]
+
+        return random.choice(states)
 
     @staticmethod
     def _random_sleep():
@@ -181,6 +190,59 @@ class SignUpService(metaclass=Singleton):
 
         return "OK", browser
 
+    def _solve_screen_5(self, browser, company_website, postal_code, street_address):
+        company_website_xpath = '//*[@id="description"]/div/div[1]/textarea'
+
+        industry_selector_xpath_1 = '//*[@id="first_industry"]/div/div/div[1]/span/span/i'
+        industry_field_xpath_1 = '//*[@id="first_industry"]/div/div/div[1]/input'
+
+        industry_selector_xpath_2 = '//*[@id="second_industry"]/div/div/div[1]/span/span/i'
+        industry_field_xpath_2 = '//*[@id="second_industry"]/div/div/div[1]/input'
+
+        street_address_xpath = '//*[@id="address_detail"]/div/div[1]/input'
+        postal_code_xpath = '//*[@id="post_code"]/div/div[1]/input'
+        state_selector_xpath = '//*[@id="state"]/div/div/div[1]/span/span/i'
+        state_field_xpath = '//*[@id="state"]/div/div/div[1]/input'
+        submit_button_xpath = '//*[@id="app"]/section/div[3]/section/div/div/section/div[2]/form/div[6]/button'
+
+        account_xpath = '/html/body/header/div/div[2]/div/div[4]/div/div/div/div'
+        account_info_xpath = '/html/body/header/div/div[2]/div/div[4]/div/div[2]/div/ul[1]/li[2]/a'
+
+        self._random_sleep()
+        browser.find_element_by_xpath(account_xpath).click()
+        self._random_sleep()
+        browser.find_element_by_xpath(account_info_xpath).click()
+        self._random_sleep()
+        browser.switch_to.alert.accept()
+        self._random_sleep()
+        browser.find_element_by_xpath(company_website_xpath).send_keys(company_website)
+        self._random_sleep()
+        browser.find_element_by_xpath(industry_selector_xpath_1).click()
+        self._random_sleep()
+        browser.find_element_by_xpath(f'//*[@id="first_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 25)}]').click()
+        self._random_sleep()
+        browser.find_element_by_xpath(industry_selector_xpath_2).click()
+        self._random_sleep()
+        browser.find_element_by_xpath(f'//*[@id="second_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 5)}]').click()
+        self._random_sleep()
+        browser.find_element_by_xpath(street_address_xpath).send_keys(street_address)
+        self._random_sleep()
+        browser.find_element_by_xpath(state_selector_xpath).click()
+        self._random_sleep()
+        # browser.find_element_by_xpath(state_field_xpath).send_keys(self._random_state())
+        # self._random_sleep()
+        browser.find_element_by_xpath(f'//*[@id="state"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 50)}]').click()
+        self._random_sleep()
+        browser.find_element_by_xpath(postal_code_xpath).click()
+        self._random_sleep()
+        browser.find_element_by_xpath(postal_code_xpath).send_keys(postal_code)
+
+        # detect payment type here
+        self._random_sleep()
+        browser.find_element_by_xpath(submit_button_xpath).click()
+
+        return "OK", browser
+
     def sign_up(self,
                 mail,
                 password,
@@ -191,6 +253,7 @@ class SignUpService(metaclass=Singleton):
                 postal_code):
         browser = self._build_browser(proxy)
         browser.get("https://ads.tiktok.com/i18n/signup/")
+
         time.sleep(15)
 
         if self._detect_screen(browser) == 1:
@@ -201,6 +264,7 @@ class SignUpService(metaclass=Singleton):
                 return status
 
             status, browser = self._solve_screen_3(browser, mail, country)
+            status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
             return status
 
         elif self._detect_screen(browser) == 2:

@@ -75,5 +75,5 @@ class TikTokAccount:
             return status
             # do smth to handle it and write status to the table
         else:
-            pass
+            return status
             # write about success registration to the table
