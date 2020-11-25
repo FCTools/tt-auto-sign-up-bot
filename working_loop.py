@@ -42,7 +42,13 @@ class WorkingLoop:
             if not self._accounts_to_register.empty():
                 with self._lock:
                     account_to_register = self._accounts_to_register.get()
-                status = account_to_register.sign_up()
+
+                validation_status = account_to_register.validate()
+
+                if validation_status != "OK":
+                    status = validation_status
+                else:
+                    status = account_to_register.sign_up()
                 self._account_manager.update_sign_up_status(account_to_register, status)
             else:
                 time.sleep(self._checking_timeout)

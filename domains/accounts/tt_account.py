@@ -3,6 +3,8 @@ Copyright © 2020 FC Tools. All rights reserved.
 Author: German Yakimov
 """
 
+from email.utils import parseaddr
+
 from domains.services.sign_up_service import SignUpService
 
 
@@ -60,6 +62,11 @@ class TikTokAccount:
         if self._payment_type:
             return self._payment_type
         return "-"
+
+    def validate(self):
+        if not parseaddr(self.email)[1] or '.' not in self.email:
+            return "Incorrect email address"
+        return "OK"
 
     def sign_up(self):
         status, payment_type = self._sign_up_service.sign_up(mail=self._mail,

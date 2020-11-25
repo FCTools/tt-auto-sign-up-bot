@@ -243,6 +243,9 @@ class SignUpService(metaclass=Singleton):
                 postal_code):
         payment_type = "-"
 
+        if not self._mail_service.correct_credentials(mail, password):
+            return "Invalid password for email", payment_type
+
         browser = self._build_browser(proxy)
         browser.get("https://ads.tiktok.com/i18n/signup/")
 

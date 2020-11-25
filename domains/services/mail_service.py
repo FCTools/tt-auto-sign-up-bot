@@ -21,6 +21,15 @@ class MailService:
 
         return verification_code
 
+    def correct_credentials(self, mail, password):
+        mailbox = imaplib.IMAP4_SSL(self._mail_server)
+        try:
+            status = mailbox.login(mail, password)
+        except imaplib.IMAP4.error:
+            return False
+
+        return status[0] == 'OK'
+
     def _last_message_from_tik_tok(self, mailbox):
         emails_list = []
 
