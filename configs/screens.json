@@ -10,19 +10,44 @@
       "submit_button_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[7]/div/button[2]",
       "verification_code_xpath_button": "//*[@id=\"TikTokAds_Register-account-center-code-btn\"]",
       "verification_code_field_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[4]/div/div/div[1]/input",
-      "email_already_used_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[6]/div"
+      "email_already_used_error_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[6]/div"
     },
     "screen_2":
     {
-
+      "country_selector_class_name": "vi-input__inner",
+      "country_field_class_name": "vi-input__inner",
+      "submit_button_class_name": "vi-button--primary"
     },
     "screen_3":
     {
-
+      "country_edit_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/label/div/span[2]",
+      "country_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/div/div/div[1]/span/span/i",
+      "country_field_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/div/div/div[1]/input",
+      "business_name_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[2]/div/div/input",
+      "currency_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[3]/div/div/div[1]/span/span/i",
+      "currency_field_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[3]/div/div/div[1]/input",
+      "phone_number_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[2]/div[2]/div/div[1]/input",
+      "agreement_checkbox_xpath": "//*[@id=\"form-item-vw\"]/div[1]/div[2]/label/span/span",
+      "submit_button_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[4]/div/button"
     },
     "screen_4":
     {
 
+    },
+    "screen_5":
+    {
+      "company_website_xpath": "//*[@id=\"description\"]/div/div[1]/textarea",
+      "industry_selector_xpath_1": "//*[@id=\"first_industry\"]/div/div/div[1]/span/span/i",
+      "industry_selector_xpath_1_list": "//*[@id=\"first_industry\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
+      "industry_selector_xpath_2": "//*[@id=\"second_industry\"]/div/div/div[1]/span/span/i",
+      "industry_selector_xpath_2_list": "//*[@id=\"second_industry\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
+      "street_address_xpath": "//*[@id=\"address_detail\"]/div/div[1]/input",
+      "postal_code_xpath": "//*[@id=\"post_code\"]/div/div[1]/input",
+      "state_selector_xpath": "//*[@id=\"state\"]/div/div/div[1]/span/span/i",
+      "states_list_xpath": "//*[@id=\"state\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
+      "submit_button_xpath": "//*[@id=\"app\"]/section/div[3]/section/div/div/section/div[2]/form/div[6]/button",
+      "account_xpath": "/html/body/header/div/div[2]/div/div[4]/div/div/div/div",
+      "account_info_xpath": "/html/body/header/div/div[2]/div/div[4]/div/div[2]/div/ul[1]/li[2]/a"
     }
   }
 }

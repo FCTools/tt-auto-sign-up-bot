@@ -123,37 +123,33 @@ class SignUpService(metaclass=Singleton):
         return 1
 
     def _solve_screen_1(self, browser, mail, password):
-        login_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[1]/div[2]/div/div/div/input'
-        password_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[2]/div/div/div/input'
-        repeat_password_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[3]/div/div/div/input'
-        agreement_checkbox_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[5]/div[1]/div'
-        submit_button_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[7]/div/button[2]'
-        verification_code_xpath_button = '//*[@id="TikTokAds_Register-account-center-code-btn"]'
-        verification_code_field_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[4]/div/div/div[1]/input'
+        screen_elements = self._screens['screens_elements']['screen_1']
 
-        browser = self._send_keys(browser, mail, xpath=login_xpath)
-        browser = self._send_keys(browser, password, xpath=password_xpath)
-        browser = self._send_keys(browser, password, xpath=repeat_password_xpath)
-        browser = self._click(browser, xpath=agreement_checkbox_xpath)
-        browser = self._click(browser, xpath=verification_code_xpath_button)
+        browser = self._send_keys(browser, mail, xpath=screen_elements['login_xpath'])
+        browser = self._send_keys(browser, password, xpath=screen_elements['password_xpath'])
+        browser = self._send_keys(browser, password, xpath=screen_elements['repeat_password_xpath'])
+        browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
+        browser = self._click(browser, xpath=screen_elements['verification_code_xpath_button'])
 
-        error_xpath = '//*[@id="TikTokAds_Register"]/section/div[2]/main/form/div[6]/div'
-        if len(browser.find_elements_by_xpath(error_xpath)) > 0 and \
-                browser.find_element_by_xpath(error_xpath).text == 'The email is already registered. Please log in.':
+        if len(browser.find_elements_by_xpath(screen_elements['email_already_used_error_xpath'])) > 0 \
+                and browser.find_element_by_xpath(screen_elements['email_already_used_error_xpath']).text == \
+                'The email is already registered. Please log in.':
             return "Email is already registered.", browser
 
         time.sleep(15)
         verification_code = self._mail_service.find_verification_code(mail, password)
 
-        browser = self._send_keys(browser, verification_code, xpath=verification_code_field_xpath)
-        browser = self._click(browser, xpath=submit_button_xpath)
+        browser = self._send_keys(browser, verification_code, xpath=screen_elements['verification_code_field_xpath'])
+        browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
 
         return "OK", browser
 
     def _solve_screen_2(self, browser, country):
-        browser = self._click(browser, class_name="vi-input__inner")
-        browser = self._send_keys(browser, country, class_name="vi-input__inner")
-        browser = self._click(browser, class_name="vi-button--primary")
+        screen_elements = self._screens['screens_elements']['screen_2']
+
+        browser = self._click(browser, class_name=screen_elements['country_selector_class_name'])
+        browser = self._send_keys(browser, country, class_name=screen_elements['country_field_class_name'])
+        browser = self._click(browser, class_name=screen_elements['submit_button_class_name'])
 
         return "OK", browser
 
@@ -179,42 +175,21 @@ class SignUpService(metaclass=Singleton):
         time.sleep(random.randint(1, 3))
 
     def _solve_screen_3(self, browser, mail, country):
-        country_edit_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]' \
-                             '/div[1]/div[1]/label/div/span[2]'
-        country_selector_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/' \
-                                 'div[1]/div[1]/div[1]/div/div/div[1]/span/span/i'
-        country_field_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/' \
-                              'div[1]/div[1]/div/div/div[1]/input'
-
-        business_name_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/' \
-                              'div[1]/div[2]/div/div/input'
-
-        currency_selector_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/' \
-                                  'div[1]/div[1]/div[3]/div/div/div[1]/span/span/i'
-        currency_field_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/' \
-                               'div[1]/div[3]/div/div/div[1]/input'
-
-        phone_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/form/' \
-                      'div[1]/div[2]/div[2]/div/div[1]/input'
-
-        agreement_xpath = '//*[@id="form-item-vw"]/div[1]/div[2]/label/span/span'
-
-        submit_button_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/section/' \
-                              'form/div[4]/div/button'
+        screen_elements = self._screens['screens_elements']['screen_3']
 
         default_currency = "USD"
         business_name = mail.split('@')[0]
         phone_number = self._random_phone_number()
 
-        browser = self._click(browser, xpath=country_edit_xpath)
-        browser = self._click(browser, xpath=country_selector_xpath)
-        browser = self._send_keys(browser, country, xpath=country_field_xpath)
-        browser = self._send_keys(browser, business_name, xpath=business_name_xpath)
-        browser = self._send_keys(browser, phone_number, xpath=phone_xpath)
-        browser = self._click(browser, xpath=agreement_xpath)
-        browser = self._click(browser, xpath=currency_selector_xpath)
-        browser = self._send_keys(browser, default_currency, xpath=currency_field_xpath)
-        browser = self._click(browser, xpath=submit_button_xpath)
+        browser = self._click(browser, xpath=screen_elements['country_edit_xpath'])
+        browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
+        browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
+        browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
+        browser = self._send_keys(browser, phone_number, xpath=screen_elements['phone_number_xpath'])
+        browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
+        browser = self._click(browser, xpath=screen_elements['currency_selector_xpath'])
+        browser = self._send_keys(browser, default_currency, xpath=screen_elements['currency_field_xpath'])
+        browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
 
         return "OK", browser
 
@@ -234,38 +209,28 @@ class SignUpService(metaclass=Singleton):
         return "OK", browser
 
     def _solve_screen_5(self, browser, company_website, postal_code, street_address):
-        company_website_xpath = '//*[@id="description"]/div/div[1]/textarea'
+        screen_elements = self._screens['screens_elements']['screen_5']
 
-        industry_selector_xpath_1 = '//*[@id="first_industry"]/div/div/div[1]/span/span/i'
-
-        industry_selector_xpath_2 = '//*[@id="second_industry"]/div/div/div[1]/span/span/i'
-
-        street_address_xpath = '//*[@id="address_detail"]/div/div[1]/input'
-        postal_code_xpath = '//*[@id="post_code"]/div/div[1]/input'
-        state_selector_xpath = '//*[@id="state"]/div/div/div[1]/span/span/i'
-        submit_button_xpath = '//*[@id="app"]/section/div[3]/section/div/div/section/div[2]/form/div[6]/button'
-
-        account_xpath = '/html/body/header/div/div[2]/div/div[4]/div/div/div/div'
-        account_info_xpath = '/html/body/header/div/div[2]/div/div[4]/div/div[2]/div/ul[1]/li[2]/a'
-
-        browser = self._click(browser, xpath=account_xpath)
-        browser = self._click(browser, xpath=account_info_xpath)
+        browser = self._click(browser, xpath=screen_elements['account_xpath'])
+        browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         browser.switch_to.alert.accept()
         time.sleep(15)
-        browser = self._send_keys(browser, company_website, xpath=company_website_xpath)
-        browser = self._click(browser, xpath=industry_selector_xpath_1)
-        browser = self._click(browser, xpath=f'//*[@id="first_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 25)}]')
-        browser = self._click(browser, xpath=industry_selector_xpath_2)
-        browser = self._click(browser, xpath=f'//*[@id="second_industry"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 5)}]')
-        browser = self._send_keys(browser, street_address, xpath=street_address_xpath)
-        browser = self._click(browser, xpath=state_selector_xpath)
-        browser = self._click(browser, xpath=f'//*[@id="state"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 50)}]')
-        browser = self._click(browser, xpath=postal_code_xpath)
-        browser = self._send_keys(browser, postal_code, xpath=postal_code_xpath)
+        browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
+        browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_1'])
+        browser = self._click(browser,
+                              xpath=screen_elements['industry_selector_xpath_1_list'].format(random.randint(1, 25)))
+        browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_2'])
+        browser = self._click(browser,
+                              xpath=screen_elements['industry_selector_xpath_2_list'].format(random.randint(1, 5)))
+        browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
+        browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
+        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 50)))
+        browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
+        browser = self._send_keys(browser, postal_code, xpath=screen_elements['postal_code_xpath'])
 
         # detect payment type here
 
-        browser = self._click(browser, xpath=submit_button_xpath)
+        browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
         return "OK", browser
 
     def sign_up(self,
