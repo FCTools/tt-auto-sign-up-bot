@@ -1,9 +1,28 @@
 {
-  "elements_xpaths":
+  "screens_elements":
   {
-    "screen_1" : {},
-    "screen_2": {},
-    "screen_3": {},
-    "screen_4": {}
+    "screen_1" :
+    {
+      "login_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[1]/div[2]/div/div/div/input",
+      "password_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[2]/div/div/div/input",
+      "repeat_password_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[3]/div/div/div/input",
+      "agreement_checkbox_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[5]/div[1]/div",
+      "submit_button_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[7]/div/button[2]",
+      "verification_code_xpath_button": "//*[@id=\"TikTokAds_Register-account-center-code-btn\"]",
+      "verification_code_field_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[4]/div/div/div[1]/input",
+      "email_already_used_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[6]/div"
+    },
+    "screen_2":
+    {
+
+    },
+    "screen_3":
+    {
+
+    },
+    "screen_4":
+    {
+
+    }
   }
 }

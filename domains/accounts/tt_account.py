@@ -62,13 +62,14 @@ class TikTokAccount:
         return "-"
 
     def sign_up(self):
-        status = self._sign_up_service.sign_up(mail=self._mail,
-                                               password=self._password,
-                                               proxy=self._proxy,
-                                               country=self._country,
-                                               company_website=self._company_website,
-                                               street_address=self._street_address,
-                                               postal_code=self._postal_code)
+        status, payment_type = self._sign_up_service.sign_up(mail=self._mail,
+                                                             password=self._password,
+                                                             proxy=self._proxy,
+                                                             country=self._country,
+                                                             company_website=self._company_website,
+                                                             street_address=self._street_address,
+                                                             postal_code=self._postal_code)
+        self._payment_type = payment_type
 
         if status != "OK":
             print(status)
