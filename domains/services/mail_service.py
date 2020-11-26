@@ -12,11 +12,14 @@ class MailService:
         self._mail_server = imap_server
         self._sender = '"TikTok For Business" <no-reply@ads-service.tiktok.com>'
 
+        print("Mail service was successfully initialized.")
+
     def find_verification_code(self, mail, password):
         mailbox = imaplib.IMAP4_SSL(self._mail_server)
         print(mailbox.login(mail, password))
 
         verification_code_email = self._last_message_from_tik_tok(mailbox)
+        print("Found required mail from tiktok.")
         verification_code = self._parse_verification_code(verification_code_email)
 
         return verification_code

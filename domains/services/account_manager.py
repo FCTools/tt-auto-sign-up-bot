@@ -14,6 +14,8 @@ class AccountManager:
         self._document_id = os.getenv("SIGN_UP_INFO_SOURCE_DOCUMENT_ID")
         self._table_parser = GoogleTableParser()
 
+        print("AccountManager was successfully initialized.")
+
     def _get_updates(self):
         accounts_to_sign_up = self._table_parser.get_accounts_to_sign_up()
         if not accounts_to_sign_up:

@@ -96,8 +96,8 @@ class SignUpService(metaclass=Singleton):
         proxy_parts = proxy.split(":")
         ip = proxy_parts[0]
         port = proxy_parts[1]
-        user = proxy_parts[2]
-        password = proxy_parts[3]
+        # user = proxy_parts[2]
+        # password = proxy_parts[3]
         proxy_string = f'{ip}:{port}'
         user_agent = self._random_user_agent()
         print(user_agent)
@@ -126,21 +126,30 @@ class SignUpService(metaclass=Singleton):
         screen_elements = self._screens['screens_elements']['screen_1']
 
         browser = self._send_keys(browser, mail, xpath=screen_elements['login_xpath'])
+        print("Fill login field.")
         browser = self._send_keys(browser, password, xpath=screen_elements['password_xpath'])
+        print("Fill password field.")
         browser = self._send_keys(browser, password, xpath=screen_elements['repeat_password_xpath'])
+        print("Fill repeat password field.")
         browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
+        print("Click agreement checkbox.")
         browser = self._click(browser, xpath=screen_elements['verification_code_xpath_button'])
+        print("Click verification code button.")
 
         if len(browser.find_elements_by_xpath(screen_elements['email_already_used_error_xpath'])) > 0 \
                 and browser.find_element_by_xpath(screen_elements['email_already_used_error_xpath']).text == \
                 'The email is already registered. Please log in.':
+            print("This email is already registered.")
             return "Email is already registered.", browser
 
-        time.sleep(15)
+        time.sleep(20)
         verification_code = self._mail_service.find_verification_code(mail, password)
+        print(f"Get verification code: {verification_code}")
 
         browser = self._send_keys(browser, verification_code, xpath=screen_elements['verification_code_field_xpath'])
+        print("Fill verification code.")
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
+        print("Click submit button.")
 
         return "OK", browser
 
@@ -182,14 +191,23 @@ class SignUpService(metaclass=Singleton):
         phone_number = self._random_phone_number()
 
         browser = self._click(browser, xpath=screen_elements['country_edit_xpath'])
+        print("Click country edit button.")
         browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
+        print("Click country selector.")
         browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
+        print("Select country.")
         browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
+        print("Fill business name.")
         browser = self._send_keys(browser, phone_number, xpath=screen_elements['phone_number_xpath'])
+        print("Fill phone number.")
         browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
+        print("Click agreement checkbox.")
         browser = self._click(browser, xpath=screen_elements['currency_selector_xpath'])
+        print("Click currency selector.")
         browser = self._send_keys(browser, default_currency, xpath=screen_elements['currency_field_xpath'])
+        print("Fill currency field.")
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
+        print("Click submit button.")
 
         return "OK", browser
 
@@ -212,25 +230,40 @@ class SignUpService(metaclass=Singleton):
         screen_elements = self._screens['screens_elements']['screen_5']
 
         browser = self._click(browser, xpath=screen_elements['account_xpath'])
+        print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
+        print("Click account info button.")
         browser.switch_to.alert.accept()
         time.sleep(15)
+        print("Accept browser alert.")
         browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
+        print("Fill company website.")
         browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_1'])
+        print("Click industry selector 1.")
         browser = self._click(browser,
                               xpath=screen_elements['industry_selector_xpath_1_list'].format(random.randint(1, 25)))
+        print("Select random industry 1.")
         browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_2'])
+        print("Click industry selector 2.")
         browser = self._click(browser,
                               xpath=screen_elements['industry_selector_xpath_2_list'].format(random.randint(1, 5)))
+        print("Select random industry 2.")
         browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
+        print("Fill street address.")
         browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
+        print("Click state selector.")
         browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 50)))
+        print("Select random state.")
         browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
+        print("Click postal code field.")
         browser = self._send_keys(browser, postal_code, xpath=screen_elements['postal_code_xpath'])
+        print("Fill postal code.")
 
         # detect payment type here
 
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
+        print("Click submit button.")
+
         return "OK", browser
 
     def sign_up(self,
@@ -244,26 +277,37 @@ class SignUpService(metaclass=Singleton):
         payment_type = "-"
 
         if not self._mail_service.correct_credentials(mail, password):
+            print("Incorrect email credentials.")
             return "Invalid password for email", payment_type
+        print("Email credentials are correct.")
 
         browser = self._build_browser(proxy)
+        print("Successfully build browser.")
         browser.get("https://ads.tiktok.com/i18n/signup/")
+        print("Get start page.")
 
         time.sleep(30)
 
         if self._detect_screen(browser) == 1:
+            print("Screen 1 was detected. Start registration branch 1.")
             status, browser = self._solve_screen_1(browser, mail, password)
+            print("Solve screen 1.")
 
             if status != "OK":
+                print(f"Incorrect status: {status}")
                 browser.close()
                 return status
             time.sleep(15)
 
+            print("Start screen 3 solving...")
             status, browser = self._solve_screen_3(browser, mail, country)
+            print("Solved screen 3.")
 
             time.sleep(20)
 
+            print("Start screen 5 solving...")
             status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
+            print(f"Solved screen 5, status: {status}, payment type: {payment_type}")
             payment_type = "Manual payment"
 
             time.sleep(15)

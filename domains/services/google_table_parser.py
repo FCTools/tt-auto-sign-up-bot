@@ -25,6 +25,8 @@ class GoogleTableParser:
 
         self._done_accounts = self._filled_rows_on_page_2()
 
+        print("GoogleTableParser was successfully initialized.")
+
     def _load_credentials(self):
         creds = None
 
