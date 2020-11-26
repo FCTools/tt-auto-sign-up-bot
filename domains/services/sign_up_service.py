@@ -108,6 +108,7 @@ class SignUpService(metaclass=Singleton):
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument(f"--proxy-server={proxy_string}")
         chrome_options.add_argument(f"user-agent={user_agent}")
+        chrome_options.add_argument("--headless")
 
         return webdriver.Chrome(options=chrome_options)
 
