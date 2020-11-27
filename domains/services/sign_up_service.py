@@ -12,11 +12,10 @@ import time
 from random_user_agent.params import SoftwareName, OperatingSystem
 from random_user_agent.user_agent import UserAgent
 from selenium import webdriver
+from selenium.common import exceptions
 
 from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
-
-from selenium.common import exceptions
 
 
 class SignUpService(metaclass=Singleton):

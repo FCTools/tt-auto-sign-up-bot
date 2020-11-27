@@ -2,6 +2,7 @@
 Copyright © 2020 FC Tools. All rights reserved.
 Author: German Yakimov
 """
+
 import logging
 import os
 import pickle
@@ -100,6 +101,7 @@ class GoogleTableParser:
                                                                              ]}
                                                                         ]
                                                                     })
+        # TODO: add network errors catching
         response = request.execute()
         self._logger.info(f"Remove account {account.email} from sheet 'Value'")
 
@@ -129,6 +131,7 @@ class GoogleTableParser:
                                                                              ]}
                                                                         ]
                                                                     })
+        # TODO: add network errors catching
         response = request.execute()
         self._done_accounts += 1
 
