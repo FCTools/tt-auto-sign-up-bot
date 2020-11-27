@@ -243,8 +243,8 @@ class SignUpService(metaclass=Singleton):
                 pass
 
         # browser = self._click(browser, class_name="manager-bar-avatar")
-        element = browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath'])
-        browser.execute_script("return arguments[0].scrollIntoView(true);", element)
+        # element = browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath'])
+        browser.execute_script("scroll(1117, 35);")
         browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath']).click()
         print("Click account button.")
         # browser = self._click(browser, class_name="manager-bar-avatar")
