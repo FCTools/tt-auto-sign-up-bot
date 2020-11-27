@@ -233,6 +233,7 @@ class SignUpService(metaclass=Singleton):
 
     def _solve_screen_5(self, browser, company_website, postal_code, street_address):
         screen_elements = self._screens['screens_elements']['screen_5']
+        print(browser.title)
 
         browser = self._click(browser, xpath=screen_elements['account_xpath'])
         print("Click account button.")
