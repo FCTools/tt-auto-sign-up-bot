@@ -242,7 +242,7 @@ class SignUpService(metaclass=Singleton):
             except:
                 pass
 
-        browser = self._click(browser, xpath=screen_elements['account_xpath'])
+        browser = self._click(browser, class_name="manager-bar-avatar")
         print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         print("Click account info button.")
