@@ -2,6 +2,7 @@
 Copyright © 2020 FC Tools. All rights reserved.
 Author: German Yakimov
 """
+
 import json
 import os
 import random
@@ -25,6 +26,9 @@ class SignUpService(metaclass=Singleton):
                                              software_names=[SoftwareName.CHROME.value], limit=100)
         self._mail_service = MailService()
         self._screens = self._load_elements()
+
+    def _catch_webdriver_exception(self):
+        pass
 
     def _random_user_agent(self):
         return self._user_agent_rotator.get_random_user_agent()
@@ -144,7 +148,7 @@ class SignUpService(metaclass=Singleton):
             print("This email is already registered.")
             return "Email is already registered.", browser
 
-        time.sleep(30)
+        time.sleep(45)
         verification_code = self._mail_service.find_verification_code(mail, password)
         print(f"Get verification code: {verification_code}")
 
