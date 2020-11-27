@@ -144,7 +144,7 @@ class SignUpService(metaclass=Singleton):
             print("This email is already registered.")
             return "Email is already registered.", browser
 
-        time.sleep(20)
+        time.sleep(30)
         verification_code = self._mail_service.find_verification_code(mail, password)
         print(f"Get verification code: {verification_code}")
 
