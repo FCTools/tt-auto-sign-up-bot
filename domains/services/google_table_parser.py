@@ -2,7 +2,7 @@
 Copyright © 2020 FC Tools. All rights reserved.
 Author: German Yakimov
 """
-
+import logging
 import os
 import pickle
 
@@ -13,6 +13,8 @@ from googleapiclient.discovery import build
 
 class GoogleTableParser:
     def __init__(self):
+        self._logger = logging.getLogger('WorkingLoop.AccountManager.GoogleTableParser')
+
         self._credentials_filename = os.getenv("PATH_TO_GOOGLE_API_CREDENTIALS")
         self._parsing_range = os.getenv("PARSING_RANGE")
         self._service = None
@@ -25,7 +27,7 @@ class GoogleTableParser:
 
         self._done_accounts = self._filled_rows_on_page_2()
 
-        print("GoogleTableParser was successfully initialized.")
+        self._logger.info("GoogleTableParser was successfully initialized.")
 
     def _load_credentials(self):
         creds = None
@@ -45,6 +47,7 @@ class GoogleTableParser:
                 pickle.dump(creds, token)
 
         self._service = build('sheets', 'v4', credentials=creds)
+        self._logger.info("Google api credentials was successfully loaded and service was successfully built.")
 
     def get_accounts_to_sign_up(self):
         document = self._service.spreadsheets().values().get(spreadsheetId=self._doc_id,
@@ -98,6 +101,7 @@ class GoogleTableParser:
                                                                         ]
                                                                     })
         response = request.execute()
+        self._logger.info(f"Remove account {account.email} from sheet 'Value'")
 
     def _add_account_to_list_2(self, account, status):
         free_row = self._done_accounts
@@ -126,8 +130,9 @@ class GoogleTableParser:
                                                                         ]
                                                                     })
         response = request.execute()
-
         self._done_accounts += 1
+
+        self._logger.info(f"Add account {account.email} to sheet 'Result'")
 
     def update_sign_up_status(self, account, status):
         self._remove_account_from_list_1(account)
