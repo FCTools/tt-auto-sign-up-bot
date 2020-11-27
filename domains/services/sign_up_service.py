@@ -105,11 +105,11 @@ class SignUpService(metaclass=Singleton):
         chrome_options = webdriver.ChromeOptions()
         # chrome_options.add_argument("start-maximized")
         chrome_options.add_argument("disable-infobars")
-        chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument(f"--proxy-server={proxy_string}")
         chrome_options.add_argument(f"user-agent={user_agent}")
-        chrome_options.add_argument("headless")
+        # chrome_options.add_argument("headless")
 
         return webdriver.Chrome(options=chrome_options)
 
@@ -239,7 +239,13 @@ class SignUpService(metaclass=Singleton):
         print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         print("Click account info button.")
-        browser.switch_to.alert.accept()
+
+        try:
+            browser.switch_to.alert.accept()
+            print("Alert closed.")
+        except exceptions.NoAlertPresentException:
+            print("No alert.")
+
         time.sleep(15)
         print("Accept browser alert.")
         browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
@@ -258,7 +264,7 @@ class SignUpService(metaclass=Singleton):
         print("Fill street address.")
         browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
         print("Click state selector.")
-        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 50)))
+        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 7)))
         print("Select random state.")
         browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
         print("Click postal code field.")
