@@ -159,8 +159,11 @@ class SignUpService(metaclass=Singleton):
         screen_elements = self._screens['screens_elements']['screen_2']
 
         browser = self._click(browser, class_name=screen_elements['country_selector_class_name'])
+        print("Click country selector.")
         browser = self._send_keys(browser, country, class_name=screen_elements['country_field_class_name'])
+        print("Field country.")
         browser = self._click(browser, class_name=screen_elements['submit_button_class_name'])
+        print("Click submit button on screen 2.")
 
         return "OK", browser
 
@@ -318,6 +321,7 @@ class SignUpService(metaclass=Singleton):
             return status, payment_type
 
         elif self._detect_screen(browser) == 2:
+            print("Detect screen 2. Start registration branch 2.")
             status, browser = self._solve_screen_2(browser, country)
             status, browser = self._solve_screen_4(browser)
 
