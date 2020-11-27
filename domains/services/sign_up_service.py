@@ -4,6 +4,7 @@ Author: German Yakimov
 """
 
 import json
+import logging
 import os
 import random
 import time
@@ -20,6 +21,8 @@ from selenium.common import exceptions
 
 class SignUpService(metaclass=Singleton):
     def __init__(self):
+        self._logger = logging.getLogger('WorkingLoop.SignUpService')
+
         self._user_agent_rotator = UserAgent(operating_systems=[OperatingSystem.WINDOWS.value,
                                                                 OperatingSystem.MAC_OS_X.value,
                                                                 OperatingSystem.LINUX.value],
@@ -27,16 +30,19 @@ class SignUpService(metaclass=Singleton):
         self._mail_service = MailService()
         self._screens = self._load_elements()
 
+        self._logger.info('Screens elements were successfully loaded.')
+        self._logger.info('SignUpService was successfully initialized.')
+
     def _catch_webdriver_exception(self):
         pass
 
     def _random_user_agent(self):
         return self._user_agent_rotator.get_random_user_agent()
 
-    @staticmethod
-    def _load_elements():
+    def _load_elements(self):
         screens_config_filename = os.path.join("configs", "screens.json")
         if not os.path.exists(screens_config_filename):
+            self._logger.critical("Can't find screens.json")
             exit(-1)
 
         with open(screens_config_filename, 'r', encoding='utf-8') as file:
@@ -50,23 +56,21 @@ class SignUpService(metaclass=Singleton):
                 browser.find_element_by_xpath(xpath).click()
             elif class_name:
                 browser.find_element_by_class_name(class_name).click()
-        except exceptions.InvalidElementStateException as exc:
-            print(exc)
-            return browser
-        except exceptions.NoSuchElementException as exc:
-            print(exc)
-            return browser
-        except exceptions.InvalidSwitchToTargetException as exc:
-            print(exc)
-            return browser
-        except exceptions.WebDriverException as exc:
-            print(exc)
-            return browser
-        except Exception as exc:
-            print(exc)
+
+            self._random_sleep()
             return browser
 
-        self._random_sleep()
+        except exceptions.InvalidElementStateException as exc:
+            self._logger.error(exc.msg)
+        except exceptions.NoSuchElementException as exc:
+            self._logger.error(exc.msg)
+        except exceptions.InvalidSwitchToTargetException as exc:
+            self._logger.error(exc.msg)
+        except exceptions.WebDriverException as exc:
+            self._logger.error(exc.msg)
+        except Exception as exc:
+            self._logger.error(str(exc))
+
         return browser
 
     def _send_keys(self, browser, value, xpath=None, class_name=None):
@@ -77,23 +81,21 @@ class SignUpService(metaclass=Singleton):
                 browser.find_element_by_xpath(xpath).send_keys(value)
             elif class_name:
                 browser.find_element_by_class_name(class_name).send_keys(value)
-        except exceptions.InvalidElementStateException as exc:
-            print(exc)
-            return browser
-        except exceptions.NoSuchElementException as exc:
-            print(exc)
-            return browser
-        except exceptions.InvalidSwitchToTargetException as exc:
-            print(exc)
-            return browser
-        except exceptions.WebDriverException as exc:
-            print(exc)
-            return browser
-        except Exception as exc:
-            print(exc)
+
+            self._random_sleep()
             return browser
 
-        self._random_sleep()
+        except exceptions.InvalidElementStateException as exc:
+            self._logger.error(exc.msg)
+        except exceptions.NoSuchElementException as exc:
+            self._logger.error(exc.msg)
+        except exceptions.InvalidSwitchToTargetException as exc:
+            self._logger.error(exc.msg)
+        except exceptions.WebDriverException as exc:
+            self._logger.error(exc.msg)
+        except Exception as exc:
+            self._logger.error(str(exc))
+
         return browser
 
     def _build_browser(self, proxy):
@@ -103,17 +105,17 @@ class SignUpService(metaclass=Singleton):
         # user = proxy_parts[2]
         # password = proxy_parts[3]
         proxy_string = f'{ip}:{port}'
+
         user_agent = self._random_user_agent()
-        print(user_agent)
+        self._logger.debug(user_agent)
+
+        options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
+                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless']
 
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("start-maximized")
-        chrome_options.add_argument("disable-infobars")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument(f"--proxy-server={proxy_string}")
-        chrome_options.add_argument(f"user-agent={user_agent}")
-        chrome_options.add_argument("headless")
+
+        for option in options_list:
+            chrome_options.add_argument(option)
 
         return webdriver.Chrome(options=chrome_options)
 
@@ -128,34 +130,38 @@ class SignUpService(metaclass=Singleton):
 
         return 1
 
-    def _solve_screen_1(self, browser, mail, password):
+    def _solve_screen_1_1(self, browser, mail, password):
         screen_elements = self._screens['screens_elements']['screen_1']
 
         browser = self._send_keys(browser, mail, xpath=screen_elements['login_xpath'])
-        print("Fill login field.")
+        self._logger.debug("SCREEN 1.1 | Fill login field.")
         browser = self._send_keys(browser, password, xpath=screen_elements['password_xpath'])
-        print("Fill password field.")
+        self._logger.debug("SCREEN 1.1 | Fill password field.")
         browser = self._send_keys(browser, password, xpath=screen_elements['repeat_password_xpath'])
-        print("Fill repeat password field.")
+        self._logger.debug("SCREEN 1.1 | Fill repeat password field.")
         browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
-        print("Click agreement checkbox.")
+        self._logger.debug("SCREEN 1.1 | Click agreement checkbox.")
         browser = self._click(browser, xpath=screen_elements['verification_code_xpath_button'])
-        print("Click verification code button.")
+        self._logger.debug("SCREEN 1.1 | Click verification code button.")
+
+        self._logger.info("SCREEN 1.1 | Fill login, password, agreement on screen 1.1 and "
+                          "click verification code button.")
 
         if len(browser.find_elements_by_xpath(screen_elements['email_already_used_error_xpath'])) > 0 \
                 and browser.find_element_by_xpath(screen_elements['email_already_used_error_xpath']).text == \
                 'The email is already registered. Please log in.':
-            print("This email is already registered.")
+            self._logger.error(f"SCREEN 1.1 | This email is already registered: {mail}")
             return "Email is already registered.", browser
 
         time.sleep(45)
         verification_code = self._mail_service.find_verification_code(mail, password)
-        print(f"Get verification code: {verification_code}")
+        self._logger.info(f"SCREEN 1.1 | Get verification code: {verification_code}")
 
         browser = self._send_keys(browser, verification_code, xpath=screen_elements['verification_code_field_xpath'])
-        print("Fill verification code.")
+        self._logger.debug("SCREEN 1.1 | Fill verification code.")
+
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
-        print("Click submit button.")
+        self._logger.info("SCREEN 1.1 | Click submit button on screen 1.1.")
 
         return "OK", browser
 
@@ -192,7 +198,7 @@ class SignUpService(metaclass=Singleton):
     def _random_sleep():
         time.sleep(random.randint(1, 3))
 
-    def _solve_screen_3(self, browser, mail, country):
+    def _solve_screen_1_2(self, browser, mail, country):
         screen_elements = self._screens['screens_elements']['screen_3']
 
         default_currency = "USD"
@@ -200,23 +206,34 @@ class SignUpService(metaclass=Singleton):
         phone_number = self._random_phone_number()
 
         browser = self._click(browser, xpath=screen_elements['country_edit_xpath'])
-        print("Click country edit button.")
+        self._logger.debug("SCREEN 1.2 | Click country edit button.")
+
         browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
-        print("Click country selector.")
+        self._logger.debug("SCREEN 1.2 | Click country selector.")
+
         browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
-        print("Select country.")
+        self._logger.debug("SCREEN 1.2 | Select country.")
+
         browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
-        print("Fill business name.")
+        self._logger.debug("SCREEN 1.2 | Fill business name.")
+
         browser = self._send_keys(browser, phone_number, xpath=screen_elements['phone_number_xpath'])
-        print("Fill phone number.")
+        self._logger.debug("SCREEN 1.2 | Fill phone number.")
+
         browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
-        print("Click agreement checkbox.")
+        self._logger.debug("SCREEN 1.2 | Click agreement checkbox.")
+
         browser = self._click(browser, xpath=screen_elements['currency_selector_xpath'])
-        print("Click currency selector.")
+        self._logger.debug("SCREEN 1.2 | Click currency selector.")
+
         browser = self._send_keys(browser, default_currency, xpath=screen_elements['currency_field_xpath'])
-        print("Fill currency field.")
+        self._logger.debug("SCREEN 1.2 | Fill currency field.")
+
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
-        print("Click submit button.")
+        self._logger.debug("SCREEN 1.2 | Click submit button.")
+
+        self._logger.info("SCREEN 1.2 | Fill country, business name, phone number, agreement, "
+                          "currency on screen 1.2 ans submit form.")
 
         return "OK", browser
 
@@ -235,14 +252,14 @@ class SignUpService(metaclass=Singleton):
 
         return "OK", browser
 
-    def _solve_screen_5(self, browser, company_website, postal_code, street_address):
+    def _solve_screen_1_3(self, browser, company_website, postal_code, street_address):
         screen_elements = self._screens['screens_elements']['screen_5']
-        print(browser.title)
+        self._logger.debug(browser.title)
 
         if len(browser.find_elements_by_xpath('//*[@id="app"]/section/div[5]/div[2]/div/div/div/div[1]/i')) > 0:
             try:
                 browser = self._click(browser, xpath='//*[@id="app"]/section/div[5]/div[2]/div/div/div/div[1]/i')
-                print("Close spam window.")
+                self._logger.debug("SCREEN 1.3 | Close spam window.")
             except:
                 pass
 
@@ -250,47 +267,61 @@ class SignUpService(metaclass=Singleton):
         # element = browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath'])
         browser.execute_script("scroll(1117, 35);")
         browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath']).click()
-        print("Click account button.")
+        self._logger.debug("SCREEN 1.3 | Click account button.")
         # browser = self._click(browser, class_name="manager-bar-avatar")
         # print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
-        print("Click account info button.")
+        self._logger.debug("SCREEN 1.3 | Click account info button.")
 
         try:
             browser.switch_to.alert.accept()
-            print("Alert closed.")
+            self._logger.debug("SCREEN 1.3 | Alert closed.")
         except exceptions.NoAlertPresentException:
-            print("No alert.")
+            self._logger.debug("SCREEN 1.3 | No alert.")
 
         time.sleep(15)
-        print("Accept browser alert.")
+        self._logger.debug("SCREEN 1.3 | Accept browser alert.")
+
         browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
-        print("Fill company website.")
+        self._logger.debug("SCREEN 1.3 | Fill company website.")
+
         browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_1'])
-        print("Click industry selector 1.")
+        self._logger.debug("SCREEN 1.3 | Click industry selector 1.")
         browser = self._click(browser,
                               xpath=screen_elements['industry_selector_xpath_1_list'].format(random.randint(1, 25)))
-        print("Select random industry 1.")
+        self._logger.debug("SCREEN 1.3 | Select random industry 1.")
+
         browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_2'])
-        print("Click industry selector 2.")
+        self._logger.debug("SCREEN 1.3 | Click industry selector 2.")
         browser = self._click(browser,
                               xpath=screen_elements['industry_selector_xpath_2_list'].format(random.randint(1, 5)))
-        print("Select random industry 2.")
-        browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
-        print("Fill street address.")
-        browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
-        print("Click state selector.")
-        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 7)))
-        print("Select random state.")
-        browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
-        print("Click postal code field.")
-        browser = self._send_keys(browser, postal_code, xpath=screen_elements['postal_code_xpath'])
-        print("Fill postal code.")
+        self._logger.debug("SCREEN 1.3 | Select random industry 2.")
 
-        # detect payment type here
+        browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
+        self._logger.debug("SCREEN 1.3 | Fill street address.")
+
+        browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
+        self._logger.debug("SCREEN 1.3 | Click state selector.")
+
+        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 7)))
+        self._logger.debug("SCREEN 1.3 | Select random state.")
+
+        browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
+        self._logger.debug("SCREEN 1.3 | Click postal code field.")
+
+        browser = self._send_keys(browser, postal_code, xpath=screen_elements['postal_code_xpath'])
+        self._logger.debug("SCREEN 1.3 | Fill postal code.")
+
+        self._logger.info("SCREEN 1.3 | Fill company website, industry, street address, state/province, "
+                          "postal code on screen 1.3.")
+
+        # TODO: detect payment type here
+
+        # TODO: put fact payment type here
+        self._logger.info(f"SCREEN 1.3 | Detected payment type on screen 1.3: manual payment")
 
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
-        print("Click submit button.")
+        self._logger.info("SCREEN 1.3 | Click submit button on screen 1.3.")
 
         return "OK", browser
 
@@ -305,43 +336,47 @@ class SignUpService(metaclass=Singleton):
         payment_type = "-"
 
         if not self._mail_service.correct_credentials(mail, password):
-            print("Incorrect email credentials.")
+            self._logger.warning("REG_MAIN | Incorrect email credentials.")
             return "Invalid password for email", payment_type
-        print("Email credentials are correct.")
+        self._logger.debug("REG_MAIN | Email credentials are correct.")
 
         browser = self._build_browser(proxy)
-        print("Successfully build browser.")
+        self._logger.info("REG_MAIN | Successfully build browser.")
         browser.get("https://ads.tiktok.com/i18n/signup/")
-        print("Get start page.")
+        self._logger.info("REG_MAIN | Get start page.")
 
         time.sleep(30)
 
         if self._detect_screen(browser) == 1:
-            print(browser.current_url)
-            print("Screen 1 was detected. Start registration branch 1.")
-            status, browser = self._solve_screen_1(browser, mail, password)
-            print("Solve screen 1.")
+            self._logger.debug(browser.current_url)
+            self._logger.info("REG_MAIN | Screen 1 was detected. Start registration branch 1.")
+
+            status, browser = self._solve_screen_1_1(browser, mail, password)
+            self._logger.info("REG_MAIN | Solve screen 1.")
 
             if status != "OK":
-                print(f"Incorrect status: {status}")
+                self._logger.error(f"REG_MAIN | Incorrect status: {status}")
                 browser.close()
                 return status
+
             time.sleep(15)
 
-            print("Start screen 3 solving...")
-            print(browser.current_url)
+            self._logger.info("REG_MAIN | Start screen 3 solving...")
+            self._logger.debug(browser.current_url)
 
-            status, browser = self._solve_screen_3(browser, mail, country)
-            print("Solved screen 3.")
+            status, browser = self._solve_screen_1_2(browser, mail, country)
+            self._logger.info("REG_MAIN | Solve screen 3.")
 
             time.sleep(30)
-            print(browser.current_url)
+            self._logger.debug(browser.current_url)
 
-            print("Start screen 5 solving...")
-            status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
-            print(f"Solved screen 5, status: {status}, payment type: {payment_type}")
+            self._logger.info("REG_MAIN | Start screen 5 solving...")
+            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address)
+
+            self._logger.info(f"REG_MAIN | Solve screen 5, status: {status}, payment type: {payment_type}")
             payment_type = "Manual payment"
-            print(browser.current_url)
+
+            self._logger.debug(browser.current_url)
 
             time.sleep(15)
             browser.close()
@@ -349,7 +384,8 @@ class SignUpService(metaclass=Singleton):
             return status, payment_type
 
         elif self._detect_screen(browser) == 2:
-            print("Detect screen 2. Start registration branch 2.")
+            self._logger.debug("REG_MAIN | Detect screen 2. Start registration branch 2.")
+
             status, browser = self._solve_screen_2(browser, country)
             status, browser = self._solve_screen_4(browser)
 
