@@ -322,7 +322,7 @@ class SignUpService(metaclass=Singleton):
             status, browser = self._solve_screen_3(browser, mail, country)
             print("Solved screen 3.")
 
-            time.sleep(20)
+            time.sleep(30)
 
             print("Start screen 5 solving...")
             status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
