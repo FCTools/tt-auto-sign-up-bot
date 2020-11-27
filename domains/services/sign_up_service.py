@@ -235,6 +235,13 @@ class SignUpService(metaclass=Singleton):
         screen_elements = self._screens['screens_elements']['screen_5']
         print(browser.title)
 
+        if len(browser.find_elements_by_xpaths('//*[@id="app"]/section/div[5]/div[2]/div/div/div/div[1]/i')) > 0:
+            try:
+                browser = self._click(browser, xpath='//*[@id="app"]/section/div[5]/div[2]/div/div/div/div[1]/i')
+                print("Close spam window.")
+            except:
+                pass
+
         browser = self._click(browser, xpath=screen_elements['account_xpath'])
         print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
