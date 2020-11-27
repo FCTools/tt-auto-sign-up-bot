@@ -109,7 +109,7 @@ class SignUpService(metaclass=Singleton):
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument(f"--proxy-server={proxy_string}")
         chrome_options.add_argument(f"user-agent={user_agent}")
-        chrome_options.add_argument("headless")
+        # chrome_options.add_argument("headless")
 
         return webdriver.Chrome(options=chrome_options)
 
@@ -310,6 +310,7 @@ class SignUpService(metaclass=Singleton):
         time.sleep(30)
 
         if self._detect_screen(browser) == 1:
+            print(browser.current_url)
             print("Screen 1 was detected. Start registration branch 1.")
             status, browser = self._solve_screen_1(browser, mail, password)
             print("Solve screen 1.")
@@ -321,15 +322,19 @@ class SignUpService(metaclass=Singleton):
             time.sleep(15)
 
             print("Start screen 3 solving...")
+            print(browser.current_url)
+
             status, browser = self._solve_screen_3(browser, mail, country)
             print("Solved screen 3.")
 
-            time.sleep(45)
+            time.sleep(30)
+            print(browser.current_url)
 
             print("Start screen 5 solving...")
             status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
             print(f"Solved screen 5, status: {status}, payment type: {payment_type}")
             payment_type = "Manual payment"
+            print(browser.current_url)
 
             time.sleep(15)
             browser.close()
