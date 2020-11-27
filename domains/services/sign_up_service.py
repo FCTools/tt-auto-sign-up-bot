@@ -244,6 +244,8 @@ class SignUpService(metaclass=Singleton):
 
         browser = self._click(browser, class_name="manager-bar-avatar")
         print("Click account button.")
+        browser = self._click(browser, class_name="manager-bar-avatar")
+        print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         print("Click account info button.")
 
@@ -322,7 +324,7 @@ class SignUpService(metaclass=Singleton):
             status, browser = self._solve_screen_3(browser, mail, country)
             print("Solved screen 3.")
 
-            time.sleep(30)
+            time.sleep(45)
 
             print("Start screen 5 solving...")
             status, browser = self._solve_screen_5(browser, company_website, postal_code, street_address)
