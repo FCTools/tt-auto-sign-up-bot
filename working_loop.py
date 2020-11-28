@@ -7,7 +7,7 @@ import logging
 import os
 import time
 from copy import deepcopy
-from queue import Queue
+from multiprocessing import Queue
 from threading import Thread, Lock
 
 from domains.services.account_manager import AccountManager
