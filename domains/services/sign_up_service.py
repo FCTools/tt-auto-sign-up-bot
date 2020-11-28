@@ -8,14 +8,11 @@ import logging
 import os
 import random
 import time
-import zipfile
 
 from random_user_agent.params import SoftwareName, OperatingSystem
 from random_user_agent.user_agent import UserAgent
 from selenium import webdriver
 from selenium.common import exceptions
-from selenium.webdriver import Proxy, DesiredCapabilities
-from selenium.webdriver.common.proxy import ProxyType
 
 from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
@@ -106,85 +103,20 @@ class SignUpService(metaclass=Singleton):
         port = proxy_parts[1]
         user = proxy_parts[2]
         password = proxy_parts[3]
+        proxy_string = f'{ip}:{port}'
 
         user_agent = self._random_user_agent()
         self._logger.debug(user_agent)
 
-        # options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
-        #                 f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
-        #                 'window-size=1920x1080', ]
-        options_list = ['--start-maximized', '--no-sandbox',
-                        f'--user-agent={user_agent}',
-                        '--window-size=1920x1080', '--headless']
+        options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
+                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
+                        'window-size=1920x1080', ]
 
         chrome_options = webdriver.ChromeOptions()
 
         for option in options_list:
             chrome_options.add_argument(option)
 
-        ###
-        manifest_json = """
-        {
-            "version": "1.0.0",
-            "manifest_version": 2,
-            "name": "Chrome Proxy",
-            "permissions": [
-                "proxy",
-                "tabs",
-                "unlimitedStorage",
-                "storage",
-                "<all_urls>",
-                "webRequest",
-                "webRequestBlocking"
-            ],
-            "background": {
-                "scripts": ["background.js"]
-            },
-            "minimum_chrome_version":"22.0.0"
-        }
-        """
-
-        background_js = """
-        var config = {
-                mode: "fixed_servers",
-                rules: {
-                singleProxy: {
-                    scheme: "http",
-                    host: "%s",
-                    port: parseInt(%s)
-                },
-                bypassList: ["localhost"]
-                }
-            };
-
-        chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
-
-        function callbackFn(details) {
-            return {
-                authCredentials: {
-                    username: "%s",
-                    password: "%s"
-                }
-            };
-        }
-
-        chrome.webRequest.onAuthRequired.addListener(
-                    callbackFn,
-                    {urls: ["<all_urls>"]},
-                    ['blocking']
-        );
-        """ % (ip, port, user, password)
-
-        pluginfile = 'proxy_auth_plugin.zip'
-
-        with zipfile.ZipFile(pluginfile, 'w') as zp:
-            zp.writestr("manifest.json", manifest_json)
-            zp.writestr("background.js", background_js)
-        chrome_options.add_extension(pluginfile)
-
-        ###
-
-        # return webdriver.Chrome(options=chrome_options)
         return webdriver.Chrome(options=chrome_options)
 
     @staticmethod
@@ -425,8 +357,6 @@ class SignUpService(metaclass=Singleton):
             if status != "OK":
                 self._logger.error(f"REG_MAIN | Incorrect status: {status}")
                 browser.close()
-                os.remove('proxy_auth_plugin.zip')
-
                 return status
 
             time.sleep(15)
@@ -450,7 +380,6 @@ class SignUpService(metaclass=Singleton):
 
             time.sleep(15)
             browser.close()
-            os.remove('proxy_auth_plugin.zip')
 
             return status, payment_type
 
@@ -461,5 +390,4 @@ class SignUpService(metaclass=Singleton):
             status, browser = self._solve_screen_4(browser)
 
             browser.close()
-            os.remove('proxy_auth_plugin.zip')
             return status, payment_type
