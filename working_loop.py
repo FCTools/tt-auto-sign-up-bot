@@ -80,7 +80,7 @@ class WorkingLoop:
 
     def _extend_queue(self):
         accounts_to_sign_up = self._account_manager.get_accounts_to_sign_up()
-        # self._logger.info(f"Get {len(accounts_to_sign_up)} accounts to sign up.")
+        self._logger.info(f"Get {len(accounts_to_sign_up)} accounts to sign up.")
 
         with self._lock:
             for account in accounts_to_sign_up:
@@ -90,8 +90,8 @@ class WorkingLoop:
         self._sign_up_thread = Thread(target=self._accounts_register_process, args=(), daemon=True)
         self._sign_up_thread.start()
 
-        # self._logger.info("Start accounts register process.")
-        # self._logger.info("Start table monitoring process.")
+        self._logger.info("Start accounts register process.")
+        self._logger.info("Start table monitoring process.")
 
         while True:
             self._extend_queue()
