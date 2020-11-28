@@ -113,7 +113,7 @@ class SignUpService(metaclass=Singleton):
         # options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
         #                 f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
         #                 'window-size=1920x1080', ]
-        options_list = ['start-maximized', 'disable-infobars', '-no-sandbox',
+        options_list = ['start-maximized', 'no-sandbox',
                         f'user-agent={user_agent}',
                         'window-size=1920x1080', 'headless']
 
