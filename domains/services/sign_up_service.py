@@ -101,8 +101,8 @@ class SignUpService(metaclass=Singleton):
         proxy_parts = proxy.split(":")
         ip = proxy_parts[0]
         port = proxy_parts[1]
-        user = proxy_parts[2]
-        password = proxy_parts[3]
+        # user = proxy_parts[2]
+        # password = proxy_parts[3]
         proxy_string = f'{ip}:{port}'
 
         user_agent = self._random_user_agent()
