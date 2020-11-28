@@ -115,7 +115,7 @@ class SignUpService(metaclass=Singleton):
         #                 'window-size=1920x1080', ]
         options_list = ['start-maximized', 'disable-infobars', '-no-sandbox',
                         f'user-agent={user_agent}',
-                        'window-size=1920x1080']
+                        'window-size=1920x1080', 'headless']
 
         chrome_options = webdriver.ChromeOptions()
 
