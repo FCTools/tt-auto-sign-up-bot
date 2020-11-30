@@ -109,7 +109,7 @@ class SignUpService(metaclass=Singleton):
         self._logger.debug(user_agent)
 
         options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
-                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
+                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless'
                         'window-size=1920x1080', ]
 
         chrome_options = webdriver.ChromeOptions()
@@ -263,13 +263,9 @@ class SignUpService(metaclass=Singleton):
             except:
                 pass
 
-        # browser = self._click(browser, class_name="manager-bar-avatar")
-        # element = browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath'])
         browser.execute_script("scroll(1117, 35);")
         browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath']).click()
         self._logger.debug("SCREEN 1.3 | Click account button.")
-        # browser = self._click(browser, class_name="manager-bar-avatar")
-        # print("Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         self._logger.debug("SCREEN 1.3 | Click account info button.")
 
@@ -280,7 +276,6 @@ class SignUpService(metaclass=Singleton):
             self._logger.debug("SCREEN 1.3 | No alert.")
 
         time.sleep(15)
-        self._logger.debug("SCREEN 1.3 | Accept browser alert.")
 
         browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
         self._logger.debug("SCREEN 1.3 | Fill company website.")
@@ -324,6 +319,28 @@ class SignUpService(metaclass=Singleton):
         self._logger.info("SCREEN 1.3 | Click submit button on screen 1.3.")
 
         return "OK", browser
+
+    def _check_account_status(self, browser):
+        screen_elements = self._screens['screens_elements']['screen_5']
+
+        browser.execute_script("scroll(1117, 35);")
+        browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath']).click()
+        self._logger.debug("SCREEN 1.3 | Click account button.")
+        browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
+        self._logger.debug("SCREEN 1.3 | Click account info button.")
+
+        try:
+            browser.switch_to.alert.accept()
+            self._logger.debug("SCREEN 1.3 | Alert closed.")
+        except exceptions.NoAlertPresentException:
+            self._logger.debug("SCREEN 1.3 | No alert.")
+
+        time.sleep(15)
+
+        status_xpath = '//*[@id="app"]/section/div[3]/section/div/div/section/div[2]/form/div[1]/div[4]/div/span'
+        status = browser.find_element_by_xpath(status_xpath).text
+
+        return status, browser
 
     def sign_up(self,
                 mail,
@@ -379,6 +396,10 @@ class SignUpService(metaclass=Singleton):
             self._logger.debug(browser.current_url)
 
             time.sleep(15)
+
+            status, browser = self._check_account_status(browser)
+            self._logger.debug(f"Check account status: {status}")
+
             browser.close()
 
             return status, payment_type
