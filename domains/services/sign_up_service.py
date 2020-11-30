@@ -109,7 +109,7 @@ class SignUpService(metaclass=Singleton):
         self._logger.debug(user_agent)
 
         options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
-                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless'
+                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
                         'window-size=1920x1080', ]
 
         chrome_options = webdriver.ChromeOptions()
