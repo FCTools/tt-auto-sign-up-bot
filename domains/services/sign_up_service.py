@@ -18,6 +18,10 @@ from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
 
 
+# TODO: fix bugs with ciry and tax information
+# TODO: fix selects processing logic
+
+
 class SignUpService(metaclass=Singleton):
     def __init__(self):
         self._logger = logging.getLogger('WorkingLoop.SignUpService')
@@ -109,7 +113,7 @@ class SignUpService(metaclass=Singleton):
         self._logger.debug(user_agent)
 
         options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
-                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
+                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}',
                         'window-size=1920x1080', ]
 
         chrome_options = webdriver.ChromeOptions()
@@ -213,6 +217,8 @@ class SignUpService(metaclass=Singleton):
 
         browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
         self._logger.debug("SCREEN 1.2 | Select country.")
+
+        # click on country here
 
         browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
         self._logger.debug("SCREEN 1.2 | Fill business name.")

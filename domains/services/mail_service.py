@@ -9,16 +9,18 @@ import logging
 
 
 class MailService:
-    def __init__(self, imap_server='imap.mail.ru'):
+    def __init__(self):
         self._logger = logging.getLogger('WorkingLoop.SignUpService.MailService')
+        self._mail_servers = ['imap.mail.ru', 'imap-mail.outlook.com']
 
-        self._mail_server = imap_server
         self._sender = '"TikTok For Business" <no-reply@ads-service.tiktok.com>'
 
         self._logger.info("Mail service was successfully initialized.")
 
     def find_verification_code(self, mail, password):
-        mailbox = imaplib.IMAP4_SSL(self._mail_server)
+        server = self._detect_mail_server(mail, password)
+
+        mailbox = imaplib.IMAP4_SSL(server)
         print(mailbox.login(mail, password))
 
         verification_code_email = self._last_message_from_tik_tok(mailbox)
@@ -27,14 +29,20 @@ class MailService:
 
         return verification_code
 
-    def correct_credentials(self, mail, password):
-        mailbox = imaplib.IMAP4_SSL(self._mail_server)
-        try:
-            status = mailbox.login(mail, password)
-        except imaplib.IMAP4.error:
-            return False
+    def _detect_mail_server(self, mail, password):
+        for server in self._mail_servers:
+            mailbox = imaplib.IMAP4_SSL(server)
+            try:
+                status = mailbox.login(mail, password)
+            except imaplib.IMAP4.error:
+                continue
 
-        return status[0] == 'OK'
+            if status[0] == 'OK':
+                return server
+
+    def correct_credentials(self, mail, password):
+        server = self._detect_mail_server(mail, password)
+        return server is not None
 
     def _last_message_from_tik_tok(self, mailbox):
         emails_list = []
