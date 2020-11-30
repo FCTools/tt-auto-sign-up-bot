@@ -31,7 +31,7 @@ class AccountManager:
         new_entries = self._get_updates()
 
         for account in new_entries:
-            if account and int(account[-1]):
+            if account and len(account) == 9 and int(account[-1]):
                 result.append(TikTokAccount(account))
 
         return result
