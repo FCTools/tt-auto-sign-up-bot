@@ -375,7 +375,7 @@ class SignUpService(metaclass=Singleton):
         except exceptions.NoAlertPresentException:
             self._logger.debug("DETECT_PAYMENT_TYPE | No alert.")
 
-        time.sleep(15)
+        time.sleep(30)
 
         payment_type_xpath = '//*[@id="payment_method"]/div/div[3]/div/div[2]/div[1]/span'
         payment_type = browser.find_element_by_xpath(payment_type_xpath).text
