@@ -75,7 +75,8 @@ class TikTokAccount:
                                                              country=self._country,
                                                              company_website=self._company_website,
                                                              street_address=self._street_address,
-                                                             postal_code=self._postal_code)
+                                                             postal_code=self._postal_code,
+                                                             tax_id=self._tax_id)
         self._payment_type = payment_type
 
         if status != "OK":
