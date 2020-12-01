@@ -349,6 +349,7 @@ class SignUpService(metaclass=Singleton):
             try:
                 status = browser.find_element_by_xpath(status_xpath).text
             except exceptions.NoSuchElementException:
+                status = 'Under Review'
                 self._logger.error("No status label on page (maybe, loading).")
 
             tries -= 1
@@ -378,6 +379,7 @@ class SignUpService(metaclass=Singleton):
 
         payment_type_xpath = '//*[@id="payment_method"]/div/div[3]/div/div[2]/div[1]/span'
         payment_type = browser.find_element_by_xpath(payment_type_xpath).text
+        self._logger.info(f"DETECT_PAYMENT_TYPE | Detect payment type: {payment_type}")
 
         return payment_type, browser
 
@@ -437,6 +439,7 @@ class SignUpService(metaclass=Singleton):
             time.sleep(15)
 
             payment_type, browser = self._get_payment_type(browser)
+            time.sleep(30)
             status, browser = self._check_account_status(browser)
             self._logger.debug(f"Check account status: {status}")
 
