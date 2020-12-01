@@ -342,10 +342,15 @@ class SignUpService(metaclass=Singleton):
 
         while status == 'Under Review' and tries > 0:
             self._logger.info("ACCOUNT_STATUS_CHECKING | Status is under review. Refresh page....")
-            time.sleep(10)
+            time.sleep(15)
             browser.refresh()
-            time.sleep(5)
-            status = browser.find_element_by_xpath(status_xpath).text
+            time.sleep(15)
+
+            try:
+                status = browser.find_element_by_xpath(status_xpath).text
+            except exceptions.NoSuchElementException:
+                self._logger.error("No status label on page (maybe, loading).")
+
             tries -= 1
 
         if status == 'Under Review' and tries == 0:
