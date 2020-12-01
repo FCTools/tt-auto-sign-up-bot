@@ -38,6 +38,7 @@ class WorkingLoop:
         self._check_environment()
 
         self._accounts_to_register = Queue()
+        self._buffer = set()
         self._account_manager = AccountManager()
         self._lock = Lock()
 
@@ -69,6 +70,7 @@ class WorkingLoop:
             if not self._accounts_to_register.empty():
                 with self._lock:
                     account_to_register = self._accounts_to_register.get()
+                    self._buffer.add(account_to_register.email)
 
                 validation_status = account_to_register.validate()
 
@@ -82,6 +84,9 @@ class WorkingLoop:
 
                 self._account_manager.update_sign_up_status(account_to_register, status)
                 self._logger.info(f"Update status for account {account_to_register.email}.")
+
+                with self._lock:
+                    self._buffer.remove(account_to_register.email)
             else:
                 self._logger.info(f"Empty queue, sleep for {self._checking_timeout} seconds.")
                 time.sleep(self._checking_timeout)
@@ -92,7 +97,8 @@ class WorkingLoop:
 
         with self._lock:
             for account in accounts_to_sign_up:
-                self._accounts_to_register.put(deepcopy(account))
+                if account.email not in self._buffer:
+                    self._accounts_to_register.put(deepcopy(account))
 
     def _process(self):
         self._sign_up_thread = Thread(target=self._accounts_register_process, args=(), daemon=True)
