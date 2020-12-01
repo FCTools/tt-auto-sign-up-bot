@@ -13,7 +13,6 @@ from random_user_agent.params import SoftwareName, OperatingSystem
 from random_user_agent.user_agent import UserAgent
 from selenium import webdriver
 from selenium.common import exceptions
-from selenium.webdriver.support.select import Select
 
 from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
@@ -24,7 +23,7 @@ from domains.services.singleton import Singleton
 
 class SignUpService(metaclass=Singleton):
     def __init__(self):
-        self._logger = logging.getLogger('WorkingLoop.SignUpService')
+        self._logger = logging.getLogger(__name__)
 
         self._user_agent_rotator = UserAgent(operating_systems=[OperatingSystem.WINDOWS.value,
                                                                 OperatingSystem.MAC_OS_X.value,

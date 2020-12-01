@@ -14,7 +14,7 @@ from googleapiclient.discovery import build
 
 class GoogleTableParser:
     def __init__(self):
-        self._logger = logging.getLogger('WorkingLoop.AccountManager.GoogleTableParser')
+        self._logger = logging.getLogger(__name__)
 
         self._credentials_filename = os.getenv("PATH_TO_GOOGLE_API_CREDENTIALS")
         self._parsing_range = os.getenv("PARSING_RANGE")

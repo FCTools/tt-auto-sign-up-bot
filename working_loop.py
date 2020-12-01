@@ -15,7 +15,16 @@ from domains.services.account_manager import AccountManager
 
 class WorkingLoop:
     def __init__(self):
-        self._logger = logging.getLogger('WorkingLoop')
+        logging.basicConfig(filename="debug_log.log", filemode="w",
+                            format='%(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)  # debug logging
+
+        console = logging.StreamHandler()
+        console.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)
+
+        self._logger = logging.getLogger(__name__)
 
         self._required_environment_variables_list = ['CHECKING_TIMEOUT',
                                                      'SIGN_UP_INFO_SOURCE_DOCUMENT_ID',
@@ -25,7 +34,6 @@ class WorkingLoop:
 
         # logging.basicConfig(filename='log.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s',
         #                     level=logging.INFO)
-        logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)  # debug logging
 
         self._check_environment()
 

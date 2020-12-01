@@ -12,7 +12,7 @@ from domains.services.google_table_parser import GoogleTableParser
 
 class AccountManager:
     def __init__(self):
-        self._logger = logging.getLogger('WorkingLoop.AccountManager')
+        self._logger = logging.getLogger(__name__)
 
         self._document_id = os.getenv("SIGN_UP_INFO_SOURCE_DOCUMENT_ID")
         self._table_parser = GoogleTableParser()
