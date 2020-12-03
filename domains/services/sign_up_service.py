@@ -285,13 +285,6 @@ class SignUpService(metaclass=Singleton):
         screen_elements = self._screens['screens_elements']['screen_1.3']
         self._logger.debug(browser.title)
 
-        if len(browser.find_elements_by_xpath(screen_elements['spam_window_xpath'])) > 0:
-            try:
-                browser = self._click(browser, xpath=screen_elements['spam_window_xpath'])
-                self._logger.debug("SCREEN 1.3 | Close spam window.")
-            except:
-                pass
-
         browser.execute_script(screen_elements['scroll_script'])
         browser.find_element_by_xpath(screen_elements['account_xpath']).click()
         self._logger.debug("SCREEN 1.3 | Click account button.")
