@@ -355,6 +355,8 @@ class SignUpService(metaclass=Singleton):
         return "OK", browser
 
     def _check_account_status(self, browser):
+        browser.refresh()
+        time.sleep(15)
         status_xpath = self._screens['screens_elements']['screen_1.3']['status_xpath']
         status = browser.find_element_by_xpath(status_xpath).text
 
