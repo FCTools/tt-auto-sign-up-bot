@@ -141,6 +141,8 @@ class SignUpService(metaclass=Singleton):
         return 1
 
     def _solve_screen_1_1(self, browser, mail, password):
+        browser = self._accept_cookie_policy(browser)
+
         screen_elements = self._screens['screens_elements']['screen_1.1']
 
         browser = self._send_keys(browser, mail, xpath=screen_elements['login_xpath'])
@@ -176,14 +178,20 @@ class SignUpService(metaclass=Singleton):
         return "OK", browser
 
     def _solve_screen_2_1(self, browser, country):
+        browser = self._accept_cookie_policy(browser)
+
         screen_elements = self._screens['screens_elements']['screen_2.1']
 
         browser = self._click(browser, class_name=screen_elements['country_selector_class_name'])
-        print("SCREEN 2.1 | Click country selector.")
-        browser = self._click(browser, xpath=screen_elements['country_field_xpath'].format(country))
-        print("SCREEN 2.1 | Field country.")
+        self._logger.debug("SCREEN 2.1 | Click country selector.")
+
+        browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
+        self._logger.debug('SCREEN 2.1 | Fill country.')
+
+        browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
+        self._logger.debug("SCREEN 2.1 | Select country.")
         browser = self._click(browser, class_name=screen_elements['submit_button_class_name'])
-        print("SCREEN 2.1 | Click submit button on screen 2.")
+        self._logger.debug("SCREEN 2.1 | Click submit button on screen 2.")
 
         return "OK", browser
 
@@ -201,21 +209,29 @@ class SignUpService(metaclass=Singleton):
     def _random_sleep():
         time.sleep(random.randint(1, 3))
 
-    def _solve_screen_1_2(self, browser, mail, country):
+    def _solve_screen_1_2(self, browser, mail, country=None):
+        browser = self._accept_cookie_policy(browser)
+
         screen_elements = self._screens['screens_elements']['screen_1.2']
 
         default_currency = screen_elements['default_currency']
         business_name = mail.split('@')[0]
         phone_number = self._random_phone_number()
 
-        browser = self._click(browser, xpath=screen_elements['country_edit_xpath'])
-        self._logger.debug("SCREEN 1.2 | Click country edit button.")
+        if country:
+            browser = self._click(browser, xpath=screen_elements['country_edit_xpath'])
+            self._logger.debug("SCREEN 1.2 | Click country edit button.")
 
-        browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
-        self._logger.debug("SCREEN 1.2 | Click country selector.")
+            browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
+            self._logger.debug("SCREEN 1.2 | Click country selector.")
 
-        browser = self._click(browser, xpath=screen_elements['country_field_xpath'].format(country))
-        self._logger.debug("SCREEN 1.2 | Select country.")
+            browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
+            self._logger.debug('SCREEN 1.2 | Fill country.')
+
+            browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
+            self._logger.debug("SCREEN 1.2 | Select country.")
+        else:
+            self._logger.debug("SCREEN 1.2 | No country given, set default.")
 
         browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
         self._logger.debug("SCREEN 1.2 | Fill business name.")
@@ -240,10 +256,22 @@ class SignUpService(metaclass=Singleton):
 
         return "OK", browser
 
+    def _accept_cookie_policy(self, browser):
+        cookie_accept_button_xpath = self._screens['screens_elements']['other']['cookie_accept_button_xpath']
+        cookie_accept_button_text = self._screens['screens_elements']['other']['cookie_accept_button_text']
+        # //*[@id="app"]/section/div[3]/div/button
+        if len(browser.find_elements_by_xpath("//*[contains(text(), '{}')]".format("Accept"))) > 0:
+            browser = self._click(browser, xpath="//*[contains(text(), '{}')]".format("Accept"))
+            self._logger.debug("Accept cookie policy.")
+        else:
+            self._logger.debug('No cookie policy found.')
+
+        return browser
+
     def _proxy_status(self, browser):
         screen_elements = self._screens['screens_elements']['screen_2.2']
         fullname_xpath = screen_elements['fullname_xpath']
-        phone_xpath = screen_elements['phone_xpath']
+        phone_xpath = screen_elements['phone_number_xpath']
 
         if len(browser.find_elements_by_xpath(fullname_xpath)) > 0 and \
                 len(browser.find_elements_by_xpath(phone_xpath)) > 0:
@@ -252,6 +280,8 @@ class SignUpService(metaclass=Singleton):
         return "OK"
 
     def _solve_screen_1_3(self, browser, company_website, postal_code, street_address, tax_id):
+        browser = self._accept_cookie_policy(browser)
+
         screen_elements = self._screens['screens_elements']['screen_1.3']
         self._logger.debug(browser.title)
 
@@ -293,6 +323,9 @@ class SignUpService(metaclass=Singleton):
 
         browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
         self._logger.debug("SCREEN 1.3 | Fill street address.")
+
+        browser.execute_script("scroll(530, 885);")
+        self._random_sleep()
 
         browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
         self._logger.debug("SCREEN 1.3 | Click state selector.")
@@ -450,18 +483,28 @@ class SignUpService(metaclass=Singleton):
             time.sleep(15)
 
             status = self._proxy_status(browser)
-            if status == 'OK':
-                self._logger.info('REG_MAIN | Proxy status is OK, continue registration (screen 1.1).')
-                status, browser = self._solve_screen_1_1(browser, mail, password)
-            else:
+            if status != "OK":
                 self._logger.info(f'REG_MAIN | Proxy status: {status}')
                 browser.close()
                 return status, payment_type
+
+            self._logger.info('REG_MAIN | Proxy status is OK, continue registration (switch to branch 1).')
+
+            status, browser = self._solve_screen_1_1(browser, mail, password)
+            self._logger.info("REG_MAIN | Solve screen 1.1")
 
             if status != "OK":
                 self._logger.error(f"REG_MAIN | Incorrect status: {status}")
                 browser.close()
                 return status, payment_type
+
+            time.sleep(15)
+
+            self._logger.info("REG_MAIN | Start screen 1.2 solving...")
+            self._logger.debug(browser.current_url)
+
+            status, browser = self._solve_screen_1_2(browser, mail)
+            self._logger.info("REG_MAIN | Solve screen 1.2.")
 
             time.sleep(30)
             self._logger.debug(browser.current_url)

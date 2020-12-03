@@ -17,14 +17,16 @@
       "billing_country_label_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/div[2]/div[2]/form/div[1]/label",
       "billing_country_label_text": "Your Billing Country/Region",
       "country_selector_class_name": "vi-input__inner",
-      "country_field_xpath": "//*[contains(text(), '{}')]",
+      "country_field_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/div[2]/div[2]/form/div[1]/div/div/div[1]/input",
+      "country_field_xpath_to_click": "//*[contains(text(), '{}')]",
       "submit_button_class_name": "vi-button--primary"
     },
     "screen_1.2":
     {
       "country_edit_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/label/div/span[2]",
       "country_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/div/div/div[1]/span/span/i",
-      "country_field_xpath": "//*[contains(text(), '{}')]",
+      "country_field_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/div/div/div[1]/input",
+      "country_field_xpath_to_click": "//*[contains(text(), '{}')]",
       "business_name_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[2]/div/div/input",
       "currency_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[3]/div/div/div[1]/span/span/i",
       "currency_field_xpath": "//*[contains(text(), '{}')]",
@@ -62,6 +64,11 @@
       "status_xpath": "//*[@id=\"app\"]/section/div[3]/section/div/div/section/div[2]/form/div[1]/div[4]/div/span",
       "refresh_tries": 10,
       "payment_type_label_xpath": "//*[@id=\"payment_method\"]/div/div[3]/div/div[2]/div[1]/span"
+    },
+    "other":
+    {
+      "cookie_accept_button_xpath": "//*[@id=\"app\"]/section/div[6]/div/button",
+      "cookie_accept_button_text": "Accept"
     }
   }
 }
