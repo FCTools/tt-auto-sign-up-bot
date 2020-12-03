@@ -1,7 +1,7 @@
 {
   "screens_elements":
   {
-    "screen_1" :
+    "screen_1.1" :
     {
       "login_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[1]/div[2]/div/div/div/input",
       "password_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[2]/div/div/div/input",
@@ -12,29 +12,33 @@
       "verification_code_field_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[4]/div/div/div[1]/input",
       "email_already_used_error_xpath": "//*[@id=\"TikTokAds_Register\"]/section/div[2]/main/form/div[6]/div"
     },
-    "screen_2":
+    "screen_2.1":
     {
+      "billing_country_label_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/div[2]/div[2]/form/div[1]/label",
+      "billing_country_label_text": "Your Billing Country/Region",
       "country_selector_class_name": "vi-input__inner",
-      "country_field_class_name": "vi-input__inner",
+      "country_field_xpath": "//*[contains(text(), '{}')]",
       "submit_button_class_name": "vi-button--primary"
     },
-    "screen_3":
+    "screen_1.2":
     {
       "country_edit_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/label/div/span[2]",
       "country_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/div/div/div[1]/span/span/i",
-      "country_field_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[1]/div/div/div[1]/input",
+      "country_field_xpath": "//*[contains(text(), '{}')]",
       "business_name_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[2]/div/div/input",
       "currency_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[3]/div/div/div[1]/span/span/i",
-      "currency_field_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[1]/div[3]/div/div/div[1]/input",
+      "currency_field_xpath": "//*[contains(text(), '{}')]",
       "phone_number_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[2]/div[2]/div/div[1]/input",
       "agreement_checkbox_xpath": "//*[@id=\"form-item-vw\"]/div[1]/div[2]/label/span/span",
-      "submit_button_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[4]/div/button"
+      "submit_button_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[4]/div/button",
+      "default_currency": "USD"
     },
-    "screen_4":
+    "screen_2.2":
     {
-
+      "fullname_xpath": "//*[@id=\"__layout\"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[2]/div/div[1]/input",
+      "phone_number_xpath": "//*[@id=\"__layout\"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[4]/div/div[1]/input"
     },
-    "screen_5":
+    "screen_1.3":
     {
       "company_website_xpath": "//*[@id=\"description\"]/div/div[1]/textarea",
       "industry_selector_xpath_1": "//*[@id=\"first_industry\"]/div/div/div[1]/span/span/i",
@@ -47,7 +51,17 @@
       "states_list_xpath": "//*[@id=\"state\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
       "submit_button_xpath": "//*[@id=\"app\"]/section/div[3]/section/div/div/section/div[2]/form/div[6]/button",
       "account_xpath": "/html/body/header/div/div[2]/div/div[4]/div/div/div/div",
-      "account_info_xpath": "/html/body/header/div/div[2]/div/div[4]/div/div[2]/div/ul[1]/li[2]/a"
+      "account_info_xpath": "/html/body/header/div/div[2]/div/div[4]/div/div[2]/div/ul[1]/li[2]/a",
+      "scroll_script": "scroll(1117, 35);",
+      "spam_window_xpath": "//*[@id=\"app\"]/section/div[5]/div[2]/div/div/div/div[1]/i",
+      "tax_id_xpath": "//*[@id=\"abn\"]/div/div[1]/input",
+      "city_label_xpath": "//*[@id=\"city\"]/label",
+      "city_label_text": "City",
+      "city_selector_xpath": "//*[@id=\"city\"]/div/div[1]/div[1]/span/span/i",
+      "city_field_xpath": "//*[@id=\"city\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
+      "status_xpath": "//*[@id=\"app\"]/section/div[3]/section/div/div/section/div[2]/form/div[1]/div[4]/div/span",
+      "refresh_tries": 10,
+      "payment_type_label_xpath": "//*[@id=\"payment_method\"]/div/div[3]/div/div[2]/div[1]/span"
     }
   }
 }

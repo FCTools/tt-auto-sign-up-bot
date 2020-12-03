@@ -32,6 +32,11 @@ class SignUpService(metaclass=Singleton):
         self._mail_service = MailService()
         self._screens = self._load_elements()
 
+        self._headless = False
+        if os.getenv('HEADLESS') and int(os.getenv('HEADLESS')):
+            self._logger.info('Browser mode: headless}')
+            self._headless = True
+
         self._logger.info('Screens elements were successfully loaded.')
         self._logger.info('SignUpService was successfully initialized.')
 
@@ -104,16 +109,17 @@ class SignUpService(metaclass=Singleton):
         proxy_parts = proxy.split(":")
         ip = proxy_parts[0]
         port = proxy_parts[1]
-        # user = proxy_parts[2]
-        # password = proxy_parts[3]
         proxy_string = f'{ip}:{port}'
 
         user_agent = self._random_user_agent()
         self._logger.debug(user_agent)
 
         options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
-                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}', 'headless',
+                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}',
                         'window-size=1920x1080', ]
+
+        if self._headless:
+            options_list.append('headless')
 
         chrome_options = webdriver.ChromeOptions()
 
@@ -122,19 +128,20 @@ class SignUpService(metaclass=Singleton):
 
         return webdriver.Chrome(options=chrome_options)
 
-    @staticmethod
-    def _detect_screen(browser):
-        label_xpath = '//*[@id="app"]/section/div[1]/section/div/div/section/div[5]/div/div[2]/div[2]/form/div[1]/label'
+    def _detect_screen(self, browser):
+        label_xpath = self._screens['screens_elements']['screen_2.1']['billing_country_label_xpath']
+        label = self._screens['screens_elements']['screen_2.1']['billing_country_label_text']
+
         if len(browser.find_elements_by_xpath(label_xpath)) > 0:
             element = browser.find_element_by_xpath(label_xpath)
 
-            if element and element.text == 'Your Billing Country/Region':
+            if element and element.text == label:
                 return 2
 
         return 1
 
     def _solve_screen_1_1(self, browser, mail, password):
-        screen_elements = self._screens['screens_elements']['screen_1']
+        screen_elements = self._screens['screens_elements']['screen_1.1']
 
         browser = self._send_keys(browser, mail, xpath=screen_elements['login_xpath'])
         self._logger.debug("SCREEN 1.1 | Fill login field.")
@@ -168,15 +175,15 @@ class SignUpService(metaclass=Singleton):
 
         return "OK", browser
 
-    def _solve_screen_2(self, browser, country):
-        screen_elements = self._screens['screens_elements']['screen_2']
+    def _solve_screen_2_1(self, browser, country):
+        screen_elements = self._screens['screens_elements']['screen_2.1']
 
         browser = self._click(browser, class_name=screen_elements['country_selector_class_name'])
-        print("Click country selector.")
-        browser = self._send_keys(browser, country, class_name=screen_elements['country_field_class_name'])
-        print("Field country.")
+        print("SCREEN 2.1 | Click country selector.")
+        browser = self._click(browser, xpath=screen_elements['country_field_xpath'].format(country))
+        print("SCREEN 2.1 | Field country.")
         browser = self._click(browser, class_name=screen_elements['submit_button_class_name'])
-        print("Click submit button on screen 2.")
+        print("SCREEN 2.1 | Click submit button on screen 2.")
 
         return "OK", browser
 
@@ -191,20 +198,13 @@ class SignUpService(metaclass=Singleton):
         return f'{first}{second}{last}'
 
     @staticmethod
-    def _random_state():
-        states = ['Washington', 'Utah', 'Arizona', 'California', 'Wisconsin', 'Maine', 'Nebraska', 'Minnesota',
-                  'New York', 'Michigan', 'Connecticut', 'Delaware', 'Pennsylvania', 'Indiana', 'South Carolina', ]
-
-        return random.choice(states)
-
-    @staticmethod
     def _random_sleep():
         time.sleep(random.randint(1, 3))
 
     def _solve_screen_1_2(self, browser, mail, country):
-        screen_elements = self._screens['screens_elements']['screen_3']
+        screen_elements = self._screens['screens_elements']['screen_1.2']
 
-        default_currency = "USD"
+        default_currency = screen_elements['default_currency']
         business_name = mail.split('@')[0]
         phone_number = self._random_phone_number()
 
@@ -214,7 +214,7 @@ class SignUpService(metaclass=Singleton):
         browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
         self._logger.debug("SCREEN 1.2 | Click country selector.")
 
-        browser = self._click(browser, xpath=f"//*[contains(text(), '{country}')]")
+        browser = self._click(browser, xpath=screen_elements['country_field_xpath'].format(country))
         self._logger.debug("SCREEN 1.2 | Select country.")
 
         browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
@@ -229,7 +229,7 @@ class SignUpService(metaclass=Singleton):
         browser = self._click(browser, xpath=screen_elements['currency_selector_xpath'])
         self._logger.debug("SCREEN 1.2 | Click currency selector.")
 
-        browser = self._click(browser, xpath=f"//*[contains(text(), '{default_currency}')]")
+        browser = self._click(browser, xpath=screen_elements['currency_field_xpath'].format(default_currency))
         self._logger.debug("SCREEN 1.2 | Fill currency field.")
 
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
@@ -240,34 +240,30 @@ class SignUpService(metaclass=Singleton):
 
         return "OK", browser
 
-    def _solve_screen_4(self, browser):
-        company_name_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[1]/div/div[1]/input'
-        fullname_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[2]/div/div[1]/input'
-        email_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[3]/div/div[1]/input'
-        phone_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[1]/div[1]/div[4]/div/div[1]/input'
-        checkbox_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/div[2]/div/div/label/span[1]/span'
-
-        submit_button_xpath = '//*[@id="__layout"]/div/div/div[3]/div[2]/form/button'
+    def _proxy_status(self, browser):
+        screen_elements = self._screens['screens_elements']['screen_2.2']
+        fullname_xpath = screen_elements['fullname_xpath']
+        phone_xpath = screen_elements['phone_xpath']
 
         if len(browser.find_elements_by_xpath(fullname_xpath)) > 0 and \
                 len(browser.find_elements_by_xpath(phone_xpath)) > 0:
-            return "Bad proxy for registration", browser
+            return "Bad proxy for registration"
 
-        return "OK", browser
+        return "OK"
 
     def _solve_screen_1_3(self, browser, company_website, postal_code, street_address, tax_id):
-        screen_elements = self._screens['screens_elements']['screen_5']
+        screen_elements = self._screens['screens_elements']['screen_1.3']
         self._logger.debug(browser.title)
 
-        if len(browser.find_elements_by_xpath('//*[@id="app"]/section/div[5]/div[2]/div/div/div/div[1]/i')) > 0:
+        if len(browser.find_elements_by_xpath(screen_elements['spam_window_xpath'])) > 0:
             try:
-                browser = self._click(browser, xpath='//*[@id="app"]/section/div[5]/div[2]/div/div/div/div[1]/i')
+                browser = self._click(browser, xpath=screen_elements['spam_window_xpath'])
                 self._logger.debug("SCREEN 1.3 | Close spam window.")
             except:
                 pass
 
-        browser.execute_script("scroll(1117, 35);")
-        browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath']).click()
+        browser.execute_script(screen_elements['scroll_script'])
+        browser.find_element_by_xpath(screen_elements['account_xpath']).click()
         self._logger.debug("SCREEN 1.3 | Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         self._logger.debug("SCREEN 1.3 | Click account info button.")
@@ -313,20 +309,20 @@ class SignUpService(metaclass=Singleton):
         self._logger.info("SCREEN 1.3 | Fill company website, industry, street address, state/province, "
                           "postal code on screen 1.3.")
 
-        if len(browser.find_elements_by_xpath('//*[@id="abn"]/div/div[1]/input')) > 0:
-            browser = self._send_keys(browser, tax_id, xpath='//*[@id="abn"]/div/div[1]/input')
-            self._logger.info("Fill tax id.")
+        if len(browser.find_elements_by_xpath(screen_elements['tax_id_xpath'])) > 0:
+            browser = self._send_keys(browser, tax_id, xpath=screen_elements['tax_id_xpath'])
+            self._logger.info("SCREEN 1.3 | Fill tax id.")
         else:
-            self._logger.info('No tax_id found on the page.')
+            self._logger.info('SCREEN 1.3 | No tax_id found on the page.')
 
-        if len(browser.find_elements_by_xpath('//*[@id="city"]/label')) > 0 and \
-           browser.find_element_by_xpath('//*[@id="city"]/label').text == 'City':
-            browser = self._click(browser, xpath='//*[@id="city"]/div/div[1]/div[1]/span/span/i')
-            self._logger.info('Click city selector.')
-            browser = self._click(browser, xpath=f'//*[@id="city"]/div/div/div[2]/div[2]/div[1]/ul/li[{random.randint(1, 5)}]')
-            self._logger.info('Select random city.')
+        if len(browser.find_elements_by_xpath(screen_elements['city_label_xpath'])) > 0 and \
+           browser.find_element_by_xpath(screen_elements['city_label_xpath']).text == 'City':
+            browser = self._click(browser, xpath=screen_elements['city_selector_xpath'])
+            self._logger.info('SCREEN 1.3 | Click city selector.')
+            browser = self._click(browser, xpath=screen_elements['city_field_xpath'].format(random.randint(1, 5)))
+            self._logger.info('SCREEN 1.3 | Select random city.')
         else:
-            self._logger.info('No city field found on the page.')
+            self._logger.info('SCREEN 1.3 | No city field found on the page.')
 
         browser.execute_script("scroll(296, 918);")
         browser = self._click(browser, xpath=screen_elements['submit_button_xpath'])
@@ -335,10 +331,10 @@ class SignUpService(metaclass=Singleton):
         return "OK", browser
 
     def _check_account_status(self, browser):
-        status_xpath = '//*[@id="app"]/section/div[3]/section/div/div/section/div[2]/form/div[1]/div[4]/div/span'
+        status_xpath = self._screens['screens_elements']['screen_1.3']['status_xpath']
         status = browser.find_element_by_xpath(status_xpath).text
 
-        tries = 10
+        tries = self._screens['screens_elements']['screen_1.3']['refresh_tries']
 
         while status == 'Under Review' and tries > 0:
             self._logger.info("ACCOUNT_STATUS_CHECKING | Status is under review. Refresh page....")
@@ -350,7 +346,7 @@ class SignUpService(metaclass=Singleton):
                 status = browser.find_element_by_xpath(status_xpath).text
             except exceptions.NoSuchElementException:
                 status = 'Under Review'
-                self._logger.error("No status label on page (maybe, loading).")
+                self._logger.error("ACCOUNT_STATUS_CHECKING | No status label on page (maybe, loading).")
 
             tries -= 1
 
@@ -361,10 +357,10 @@ class SignUpService(metaclass=Singleton):
         return status, browser
 
     def _get_payment_type(self, browser):
-        screen_elements = self._screens['screens_elements']['screen_5']
+        screen_elements = self._screens['screens_elements']['screen_1.3']
 
-        browser.execute_script("scroll(1117, 35);")
-        browser.find_element_by_xpath(self._screens['screens_elements']['screen_5']['account_xpath']).click()
+        browser.execute_script(screen_elements['scroll_script'])
+        browser.find_element_by_xpath(self._screens['screens_elements']['screen_1.3']['account_xpath']).click()
         self._logger.debug("DETECT_PAYMENT_TYPE | Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
         self._logger.debug("DETECT_PAYMENT_TYPE | Click account info button.")
@@ -377,7 +373,7 @@ class SignUpService(metaclass=Singleton):
 
         time.sleep(30)
 
-        payment_type_xpath = '//*[@id="payment_method"]/div/div[3]/div/div[2]/div[1]/span'
+        payment_type_xpath = screen_elements['payment_type_label_xpath']
         payment_type = browser.find_element_by_xpath(payment_type_xpath).text
         self._logger.info(f"DETECT_PAYMENT_TYPE | Detect payment type: {payment_type}")
 
@@ -448,10 +444,42 @@ class SignUpService(metaclass=Singleton):
             return status, payment_type
 
         elif self._detect_screen(browser) == 2:
-            self._logger.debug("REG_MAIN | Detect screen 2. Start registration branch 2.")
+            self._logger.debug("REG_MAIN | Detect screen 2.1. Start registration branch 2.")
 
-            status, browser = self._solve_screen_2(browser, country)
-            status, browser = self._solve_screen_4(browser)
+            status, browser = self._solve_screen_2_1(browser, country)
+            time.sleep(15)
+
+            status = self._proxy_status(browser)
+            if status == 'OK':
+                self._logger.info('REG_MAIN | Proxy status is OK, continue registration (screen 1.1).')
+                status, browser = self._solve_screen_1_1(browser, mail, password)
+            else:
+                self._logger.info(f'REG_MAIN | Proxy status: {status}')
+                browser.close()
+                return status, payment_type
+
+            if status != "OK":
+                self._logger.error(f"REG_MAIN | Incorrect status: {status}")
+                browser.close()
+                return status, payment_type
+
+            time.sleep(30)
+            self._logger.debug(browser.current_url)
+
+            self._logger.info("REG_MAIN | Start screen 1.3 solving...")
+            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
+
+            self._logger.info(f"REG_MAIN | Solve screen 1.3, status: {status}, payment type: {payment_type}")
+
+            self._logger.debug(browser.current_url)
+
+            time.sleep(15)
+
+            payment_type, browser = self._get_payment_type(browser)
+            time.sleep(30)
+            status, browser = self._check_account_status(browser)
+            self._logger.debug(f"Check account status: {status}")
 
             browser.close()
+
             return status, payment_type
