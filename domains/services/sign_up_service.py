@@ -230,6 +230,7 @@ class SignUpService(metaclass=Singleton):
 
             browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
             self._logger.debug("SCREEN 1.2 | Select country.")
+            time.sleep(5)
         else:
             self._logger.debug("SCREEN 1.2 | No country given, set default.")
 
@@ -257,9 +258,6 @@ class SignUpService(metaclass=Singleton):
         return "OK", browser
 
     def _accept_cookie_policy(self, browser):
-        cookie_accept_button_xpath = self._screens['screens_elements']['other']['cookie_accept_button_xpath']
-        cookie_accept_button_text = self._screens['screens_elements']['other']['cookie_accept_button_text']
-        # //*[@id="app"]/section/div[3]/div/button
         if len(browser.find_elements_by_xpath("//*[contains(text(), '{}')]".format("Accept"))) > 0:
             browser = self._click(browser, xpath="//*[contains(text(), '{}')]".format("Accept"))
             self._logger.debug("Accept cookie policy.")
@@ -323,7 +321,7 @@ class SignUpService(metaclass=Singleton):
         browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
         self._logger.debug("SCREEN 1.3 | Click state selector.")
 
-        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(random.randint(1, 7)))
+        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(0))
         self._logger.debug("SCREEN 1.3 | Select random state.")
 
         browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
@@ -345,7 +343,7 @@ class SignUpService(metaclass=Singleton):
            browser.find_element_by_xpath(screen_elements['city_label_xpath']).text == 'City':
             browser = self._click(browser, xpath=screen_elements['city_selector_xpath'])
             self._logger.info('SCREEN 1.3 | Click city selector.')
-            browser = self._click(browser, xpath=screen_elements['city_field_xpath'].format(random.randint(1, 5)))
+            browser = self._click(browser, xpath=screen_elements['city_field_xpath'].format(0))
             self._logger.info('SCREEN 1.3 | Select random city.')
         else:
             self._logger.info('SCREEN 1.3 | No city field found on the page.')
