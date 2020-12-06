@@ -300,17 +300,16 @@ class SignUpService(metaclass=Singleton):
         browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
         self._logger.debug("SCREEN 1.3 | Fill company website.")
 
-        browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_1'])
-        self._logger.debug("SCREEN 1.3 | Click industry selector 1.")
-        browser = self._click(browser,
-                              xpath=screen_elements['industry_selector_xpath_1_list'].format(random.randint(1, 25)))
-        self._logger.debug("SCREEN 1.3 | Select random industry 1.")
+        industry_field_xpath = '//*[@id="second_industry"]/div/div/div/input'
+        industry_selector_xpath_1 = "//*[contains(text(), 'Life Service')]"
+        industry_2_xpath = "//*[contains(text(), 'Photography')]"
 
-        browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_2'])
-        self._logger.debug("SCREEN 1.3 | Click industry selector 2.")
-        browser = self._click(browser,
-                              xpath=screen_elements['industry_selector_xpath_2_list'].format(random.randint(1, 5)))
-        self._logger.debug("SCREEN 1.3 | Select random industry 2.")
+        browser = self._click(browser, xpath=industry_field_xpath)
+        self._logger.debug("SCREEN 1.3 | Click industry field.")
+        browser = self._click(browser, xpath=industry_selector_xpath_1)
+        self._logger.debug("SCREEN 1.3 | Click industry 1 selector.")
+        browser = self._click(browser, xpath=industry_2_xpath)
+        self._logger.debug("SCREEN 1.3 | Click industry 2.")
 
         browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
         self._logger.debug("SCREEN 1.3 | Fill street address.")
@@ -321,7 +320,7 @@ class SignUpService(metaclass=Singleton):
         browser = self._click(browser, xpath=screen_elements['state_selector_xpath'])
         self._logger.debug("SCREEN 1.3 | Click state selector.")
 
-        browser = self._click(browser, xpath=screen_elements['states_list_xpath'].format(0))
+        browser = self._click(browser, xpath="//*[contains(text(), 'Oregon')]")
         self._logger.debug("SCREEN 1.3 | Select random state.")
 
         browser = self._click(browser, xpath=screen_elements['postal_code_xpath'])
