@@ -70,7 +70,6 @@ class WorkingLoop:
             if not self._accounts_to_register.empty():
                 with self._lock:
                     account_to_register = self._accounts_to_register.get()
-                    self._buffer.add(account_to_register.email)
 
                 validation_status = account_to_register.validate()
 
@@ -99,6 +98,7 @@ class WorkingLoop:
             for account in accounts_to_sign_up:
                 if account.email not in self._buffer:
                     self._accounts_to_register.put(deepcopy(account))
+                    self._buffer.add(account.email)
 
     def _process(self):
         self._sign_up_thread = Thread(target=self._accounts_register_process, args=(), daemon=True)
