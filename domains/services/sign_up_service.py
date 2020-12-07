@@ -156,11 +156,15 @@ class SignUpService(metaclass=Singleton):
         self._logger.info("SCREEN 1.1 | Fill login, password, agreement on screen 1.1 and "
                           "click verification code button.")
 
-        if len(browser.find_elements_by_xpath(screen_elements['email_already_used_error_xpath'])) > 0 \
-                and browser.find_element_by_xpath(screen_elements['email_already_used_error_xpath']).text == \
-                'The email is already registered. Please log in.':
-            self._logger.error(f"SCREEN 1.1 | This email is already registered: {mail}")
-            return "Email is already registered.", browser
+        if len(browser.find_elements_by_xpath(screen_elements['email_already_used_error_xpath'])) > 0:
+            if browser.find_element_by_xpath(screen_elements['email_already_used_error_xpath']).text == \
+                    'The email is already registered. Please log in.':
+                self._logger.error(f"SCREEN 1.1 | This email is already registered: {mail}")
+                return "Email is already registered.", browser
+            else:
+                error_text = browser.find_element_by_xpath(screen_elements['email_already_used_error_xpath']).text
+                self._logger.error(f"SCREEN 1.1 | {error_text}")
+                return error_text, browser
 
         time.sleep(45)
         verification_code = self._mail_service.find_verification_code(mail, password)
