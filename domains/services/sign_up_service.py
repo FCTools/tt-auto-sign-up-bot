@@ -18,9 +18,6 @@ from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
 
 
-# TODO: fix selects processing logic
-
-
 class SignUpService(metaclass=Singleton):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -34,7 +31,7 @@ class SignUpService(metaclass=Singleton):
 
         self._headless = False
         if os.getenv('HEADLESS') and int(os.getenv('HEADLESS')):
-            self._logger.info('Browser mode: headless}')
+            self._logger.info('Browser mode: headless')
             self._headless = True
 
         self._logger.info('Screens elements were successfully loaded.')
@@ -300,15 +297,11 @@ class SignUpService(metaclass=Singleton):
         browser = self._send_keys(browser, company_website, xpath=screen_elements['company_website_xpath'])
         self._logger.debug("SCREEN 1.3 | Fill company website.")
 
-        industry_field_xpath = '//*[@id="second_industry"]/div/div/div/input'
-        industry_selector_xpath_1 = "//*[contains(text(), 'Life Service')]"
-        industry_2_xpath = "//*[contains(text(), 'Photography')]"
-
-        browser = self._click(browser, xpath=industry_field_xpath)
+        browser = self._click(browser, xpath=screen_elements['industry_field_xpath'])
         self._logger.debug("SCREEN 1.3 | Click industry field.")
-        browser = self._click(browser, xpath=industry_selector_xpath_1)
+        browser = self._click(browser, xpath=screen_elements['industry_selector_xpath_1'])
         self._logger.debug("SCREEN 1.3 | Click industry 1 selector.")
-        browser = self._click(browser, xpath=industry_2_xpath)
+        browser = self._click(browser, xpath=screen_elements['industry_2_xpath'])
         self._logger.debug("SCREEN 1.3 | Click industry 2.")
 
         browser = self._send_keys(browser, street_address, xpath=screen_elements['street_address_xpath'])
@@ -339,7 +332,7 @@ class SignUpService(metaclass=Singleton):
             self._logger.info('SCREEN 1.3 | No tax_id found on the page.')
 
         if len(browser.find_elements_by_xpath(screen_elements['city_label_xpath'])) > 0 and \
-           browser.find_element_by_xpath(screen_elements['city_label_xpath']).text == 'City':
+                browser.find_element_by_xpath(screen_elements['city_label_xpath']).text == 'City':
             browser = self._click(browser, xpath=screen_elements['city_selector_xpath'])
             self._logger.info('SCREEN 1.3 | Click city selector.')
             browser = self._click(browser, xpath=screen_elements['city_field_xpath'].format(0))
@@ -404,6 +397,57 @@ class SignUpService(metaclass=Singleton):
 
         return payment_type, browser
 
+    def _registration_branch_1(self, browser,
+                               mail,
+                               password,
+                               company_website,
+                               street_address,
+                               postal_code,
+                               tax_id,
+                               country=None):
+        payment_type = "-"
+
+        status, browser = self._solve_screen_1_1(browser, mail, password)
+        self._logger.info("REG_MAIN | Solve screen 1.1")
+
+        if status != "OK":
+            self._logger.error(f"REG_MAIN | Incorrect status: {status}")
+            browser.close()
+            return status, payment_type
+
+        time.sleep(15)
+
+        self._logger.info("REG_MAIN | Start screen 1.2 solving...")
+        self._logger.debug(browser.current_url)
+
+        if country:
+            status, browser = self._solve_screen_1_2(browser, mail, country)
+        else:
+            status, browser = self._solve_screen_1_2(browser, mail)
+
+        self._logger.info("REG_MAIN | Solve screen 1.2.")
+
+        time.sleep(30)
+        self._logger.debug(browser.current_url)
+
+        self._logger.info("REG_MAIN | Start screen 1.3 solving...")
+        status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
+
+        self._logger.info(f"REG_MAIN | Solve screen 1.3, status: {status}, payment type: {payment_type}")
+
+        self._logger.debug(browser.current_url)
+
+        time.sleep(15)
+
+        payment_type, browser = self._get_payment_type(browser)
+        time.sleep(30)
+        status, browser = self._check_account_status(browser)
+        self._logger.debug(f"Check account status: {status}")
+
+        browser.close()
+
+        return status, payment_type
+
     def sign_up(self,
                 mail,
                 password,
@@ -431,42 +475,8 @@ class SignUpService(metaclass=Singleton):
             self._logger.debug(browser.current_url)
             self._logger.info("REG_MAIN | Screen 1.1 was detected. Start registration branch 1.")
 
-            status, browser = self._solve_screen_1_1(browser, mail, password)
-            self._logger.info("REG_MAIN | Solve screen 1.1")
-
-            if status != "OK":
-                self._logger.error(f"REG_MAIN | Incorrect status: {status}")
-                browser.close()
-                return status, payment_type
-
-            time.sleep(15)
-
-            self._logger.info("REG_MAIN | Start screen 1.2 solving...")
-            self._logger.debug(browser.current_url)
-
-            status, browser = self._solve_screen_1_2(browser, mail, country)
-            self._logger.info("REG_MAIN | Solve screen 1.2.")
-
-            time.sleep(30)
-            self._logger.debug(browser.current_url)
-
-            self._logger.info("REG_MAIN | Start screen 1.3 solving...")
-            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
-
-            self._logger.info(f"REG_MAIN | Solve screen 1.3, status: {status}, payment type: {payment_type}")
-
-            self._logger.debug(browser.current_url)
-
-            time.sleep(15)
-
-            payment_type, browser = self._get_payment_type(browser)
-            time.sleep(30)
-            status, browser = self._check_account_status(browser)
-            self._logger.debug(f"Check account status: {status}")
-
-            browser.close()
-
-            return status, payment_type
+            return self._registration_branch_1(browser, mail, password, company_website,
+                                               street_address, postal_code, tax_id, country=country)
 
         elif self._detect_screen(browser) == 2:
             self._logger.debug("REG_MAIN | Detect screen 2.1. Start registration branch 2.")
@@ -482,39 +492,5 @@ class SignUpService(metaclass=Singleton):
 
             self._logger.info('REG_MAIN | Proxy status is OK, continue registration (switch to branch 1).')
 
-            status, browser = self._solve_screen_1_1(browser, mail, password)
-            self._logger.info("REG_MAIN | Solve screen 1.1")
-
-            if status != "OK":
-                self._logger.error(f"REG_MAIN | Incorrect status: {status}")
-                browser.close()
-                return status, payment_type
-
-            time.sleep(15)
-
-            self._logger.info("REG_MAIN | Start screen 1.2 solving...")
-            self._logger.debug(browser.current_url)
-
-            status, browser = self._solve_screen_1_2(browser, mail)
-            self._logger.info("REG_MAIN | Solve screen 1.2.")
-
-            time.sleep(30)
-            self._logger.debug(browser.current_url)
-
-            self._logger.info("REG_MAIN | Start screen 1.3 solving...")
-            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
-
-            self._logger.info(f"REG_MAIN | Solve screen 1.3, status: {status}, payment type: {payment_type}")
-
-            self._logger.debug(browser.current_url)
-
-            time.sleep(15)
-
-            payment_type, browser = self._get_payment_type(browser)
-            time.sleep(30)
-            status, browser = self._check_account_status(browser)
-            self._logger.debug(f"Check account status: {status}")
-
-            browser.close()
-
-            return status, payment_type
+            return self._registration_branch_1(browser, mail, password, company_website,
+                                               street_address, postal_code, tax_id)

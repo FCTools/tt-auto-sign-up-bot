@@ -43,10 +43,9 @@
     "screen_1.3":
     {
       "company_website_xpath": "//*[@id=\"description\"]/div/div[1]/textarea",
-      "industry_selector_xpath_1": "//*[@id=\"first_industry\"]/div/div/div[1]/span/span/i",
-      "industry_selector_xpath_1_list": "//*[@id=\"first_industry\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
-      "industry_selector_xpath_2": "//*[@id=\"second_industry\"]/div/div/div[1]/span/span/i",
-      "industry_selector_xpath_2_list": "//*[@id=\"second_industry\"]/div/div/div[2]/div[2]/div[1]/ul/li[{}]",
+      "industry_field_xpath": "//*[@id=\"second_industry\"]/div/div/div/input",
+      "industry_selector_xpath_1": "//*[contains(text(), 'Life Service')]",
+      "industry_2_xpath": "//*[contains(text(), 'Photography')]",
       "street_address_xpath": "//*[@id=\"address_detail\"]/div/div[1]/input",
       "postal_code_xpath": "//*[@id=\"post_code\"]/div/div[1]/input",
       "state_selector_xpath": "//*[@id=\"state\"]/div/div/div[1]/input",
