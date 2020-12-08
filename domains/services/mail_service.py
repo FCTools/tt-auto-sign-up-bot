@@ -6,6 +6,7 @@ Author: German Yakimov
 import email
 import imaplib
 import logging
+import time
 
 
 class MailService:
@@ -24,6 +25,16 @@ class MailService:
         print(mailbox.login(mail, password))
 
         verification_code_email = self._last_message_from_tik_tok(mailbox)
+
+        tries = 10
+        while not verification_code_email and tries > 0:
+            time.sleep(15)
+            verification_code_email = self._last_message_from_tik_tok(mailbox)
+            tries -= 1
+
+        if not verification_code_email and tries == 0:
+            return "Can't find email"
+
         self._logger.debug("Found required mail from tiktok.")
         verification_code = self._parse_verification_code(verification_code_email)
 

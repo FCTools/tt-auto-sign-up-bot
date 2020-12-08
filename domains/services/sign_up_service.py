@@ -168,6 +168,18 @@ class SignUpService(metaclass=Singleton):
 
         time.sleep(45)
         verification_code = self._mail_service.find_verification_code(mail, password)
+
+        tries = 3
+        while verification_code == "Can't find email" and tries > 0:
+            browser = self._click(browser, xpath=screen_elements['verification_code_xpath_button'])
+            self._logger.debug("SCREEN 1.1 | Click verification code button.")
+            time.sleep(15)
+            verification_code = self._mail_service.find_verification_code(mail, password)
+            tries -= 1
+
+        if not verification_code:
+            return "Can't find email from tiktok.", browser
+
         self._logger.info(f"SCREEN 1.1 | Get verification code: {verification_code}")
 
         browser = self._send_keys(browser, verification_code, xpath=screen_elements['verification_code_field_xpath'])
