@@ -455,7 +455,19 @@ class SignUpService(metaclass=Singleton):
 
         time.sleep(15)
 
-        payment_type, browser = self._get_payment_type(browser)
+        try:
+            payment_type, browser = self._get_payment_type(browser)
+        except exceptions.TimeoutException:
+            self._logger.error("Timeout exception. Retrying to get payment status...")
+            browser.refresh()
+            time.sleep(10)
+
+            try:
+                payment_type, browser = self._get_payment_type(browser)
+            except exceptions.TimeoutException:
+                self._logger.error("Second timeout exception. Skip.")
+                payment_type = "Can't get payment type (network error)."
+
         time.sleep(30)
         status, browser = self._check_account_status(browser)
         self._logger.debug(f"Check account status: {status}")
