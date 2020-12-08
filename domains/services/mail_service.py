@@ -11,7 +11,7 @@ import logging
 class MailService:
     def __init__(self):
         self._logger = logging.getLogger(__name__)
-        self._mail_servers = ['imap.mail.ru', 'imap.mail.com']
+        self._mail_servers = ['imap.mail.ru', 'imap.mail.com', 'imap.mail.yahoo.com']
 
         self._sender = '"TikTok For Business" <no-reply@ads-service.tiktok.com>'
 
