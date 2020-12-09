@@ -106,7 +106,7 @@ class GoogleTableParser:
         self._logger.info(f"Remove account {account.email} from sheet 'Value'")
 
     def _add_account_to_list_2(self, account, status):
-        free_row = self._done_accounts
+        free_row = self._filled_rows_on_page_2()
         range_ = f"Result!A{free_row}:J{free_row}"
 
         value_input_option = "USER_ENTERED"

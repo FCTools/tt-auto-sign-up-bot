@@ -138,8 +138,6 @@ class SignUpService(metaclass=Singleton):
         return 1
 
     def _solve_screen_1_1(self, browser, mail, password):
-        browser = self._accept_cookie_policy(browser)
-
         screen_elements = self._screens['screens_elements']['screen_1.1']
 
         browser = self._send_keys(browser, mail, xpath=screen_elements['login_xpath'])
@@ -291,8 +289,6 @@ class SignUpService(metaclass=Singleton):
         return "OK"
 
     def _solve_screen_1_3(self, browser, company_website, postal_code, street_address, tax_id):
-        browser = self._accept_cookie_policy(browser)
-
         screen_elements = self._screens['screens_elements']['screen_1.3']
         self._logger.debug(browser.title)
 
