@@ -494,13 +494,12 @@ class SignUpService(metaclass=Singleton):
 
         try:
             browser = self._build_browser(proxy)
+            self._logger.info("REG_MAIN | Successfully build browser.")
+            browser.get("https://ads.tiktok.com/i18n/signup/")
+            self._logger.info("REG_MAIN | Get start page.")
         except exceptions.WebDriverException as e:
             self._logger.error(e.msg)
             return e.msg, payment_type
-
-        self._logger.info("REG_MAIN | Successfully build browser.")
-        browser.get("https://ads.tiktok.com/i18n/signup/")
-        self._logger.info("REG_MAIN | Get start page.")
 
         time.sleep(30)
 
