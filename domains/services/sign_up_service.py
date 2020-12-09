@@ -492,7 +492,12 @@ class SignUpService(metaclass=Singleton):
             return "Invalid password for email", payment_type
         self._logger.debug("REG_MAIN | Email credentials are correct.")
 
-        browser = self._build_browser(proxy)
+        try:
+            browser = self._build_browser(proxy)
+        except exceptions.WebDriverException as e:
+            self._logger.error(e.msg)
+            return e.msg, payment_type
+
         self._logger.info("REG_MAIN | Successfully build browser.")
         browser.get("https://ads.tiktok.com/i18n/signup/")
         self._logger.info("REG_MAIN | Get start page.")
