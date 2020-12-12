@@ -80,13 +80,17 @@ class SignUpService(metaclass=Singleton):
         with open(screens_config_filename, 'r', encoding='utf-8') as file:
             return json.load(file)
 
-    def _click(self, browser, xpath=None, class_name=None):
+    def _click(self, browser, xpath=None, class_name=None, jump=True):
         self._random_sleep()
 
         try:
             if xpath:
                 element = browser.find_element_by_xpath(xpath)
                 action = ActionChains(browser)
+                if jump:
+                    action.move_to_element(element)
+                    action.perform()
+                    time.sleep(1)
                 action.move_to_element(element)
                 action.perform()
                 time.sleep(1)
@@ -95,9 +99,10 @@ class SignUpService(metaclass=Singleton):
             elif class_name:
                 element = browser.find_element_by_class_name(class_name)
                 action = ActionChains(browser)
-                action.move_to_element(element)
-                action.perform()
-                time.sleep(1)
+                if jump:
+                    action.move_to_element(element)
+                    action.perform()
+                    time.sleep(1)
                 action.click(element)
                 action.perform()
 
@@ -117,21 +122,26 @@ class SignUpService(metaclass=Singleton):
 
         return browser
 
-    def _send_keys(self, browser, value, xpath=None, class_name=None):
+    def _send_keys(self, browser, value, xpath=None, class_name=None, jump=True):
         self._random_sleep()
 
         try:
             if xpath:
                 element = browser.find_element_by_xpath(xpath)
                 action = ActionChains(browser)
-                action.move_to_element(element)
-                action.perform()
-                time.sleep(1)
+                if jump:
+                    action.move_to_element(element)
+                    action.perform()
+                    time.sleep(1)
                 action.send_keys_to_element(element, value)
                 action.perform()
             elif class_name:
                 element = browser.find_element_by_class_name(class_name)
                 action = ActionChains(browser)
+                if jump:
+                    action.move_to_element(element)
+                    action.perform()
+                    time.sleep(1)
                 action.move_to_element(element)
                 action.perform()
                 time.sleep(1)
@@ -248,7 +258,7 @@ class SignUpService(metaclass=Singleton):
         browser = self._click(browser, class_name=screen_elements['country_selector_class_name'])
         self._logger.debug("SCREEN 2.1 | Click country selector.")
 
-        browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
+        browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'], jump=False)
         self._logger.debug('SCREEN 2.1 | Fill country.')
 
         browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
@@ -288,7 +298,7 @@ class SignUpService(metaclass=Singleton):
             browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
             self._logger.debug("SCREEN 1.2 | Click country selector.")
 
-            browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'])
+            browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'], jump=False)
             self._logger.debug('SCREEN 1.2 | Fill country.')
 
             browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
