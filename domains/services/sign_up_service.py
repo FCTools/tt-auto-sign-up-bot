@@ -129,10 +129,15 @@ class SignUpService(metaclass=Singleton):
             if xpath:
                 element = browser.find_element_by_xpath(xpath)
                 action = ActionChains(browser)
+
                 if jump:
                     action.move_to_element(element)
                     action.perform()
                     time.sleep(1)
+                    action.click(element)
+                    action.perform()
+                    time.sleep(1)
+
                 action.send_keys_to_element(element, value)
                 action.perform()
             elif class_name:
@@ -142,6 +147,10 @@ class SignUpService(metaclass=Singleton):
                     action.move_to_element(element)
                     action.perform()
                     time.sleep(1)
+                    action.click(element)
+                    action.perform()
+                    time.sleep(1)
+
                 action.move_to_element(element)
                 action.perform()
                 time.sleep(1)
