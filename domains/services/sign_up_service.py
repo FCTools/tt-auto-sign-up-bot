@@ -182,9 +182,11 @@ class SignUpService(metaclass=Singleton):
         user_agent = self._random_user_agent()
         self._logger.debug(user_agent)
 
-        options_list = ['start-maximized', '-no-sandbox',
-                        f'--proxy-server={proxy_string}', f'user-agent={user_agent}',
-                        'window-size=1920x1080', ]
+        options_list = ['--start-maximized', '--no-sandbox',
+                        f'--proxy-server={proxy_string}', f'--user-agent={user_agent}',
+                        '--window-size=1920x1080', ]
+        # options_list = ['--start-maximized', '--no-sandbox', f'--user-agent={user_agent}',
+        #                 '--window-size=1920x1080', 'headless']
 
         if self._headless:
             options_list.append('headless')
@@ -193,8 +195,12 @@ class SignUpService(metaclass=Singleton):
 
         for option in options_list:
             chrome_options.add_argument(option)
+        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
 
-        return webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
+        # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+
+        return driver
 
     def _detect_screen(self, browser):
         label_xpath = self._screens['screens_elements']['screen_2.1']['billing_country_label_xpath']
@@ -562,7 +568,9 @@ class SignUpService(metaclass=Singleton):
         try:
             browser = self._build_browser(proxy)
             self._logger.info("REG_MAIN | Successfully build browser.")
-            browser.get("https://ads.tiktok.com/i18n/signup/")
+            browser.get("https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html")
+            # browser.get("https://arh.antoinevastel.com/bots/areyouheadless")
+            # browser.get("https://ads.tiktok.com/i18n/signup/")
             self._logger.info("REG_MAIN | Get start page.")
         except exceptions.WebDriverException as e:
             self._logger.error(e.msg)
