@@ -568,9 +568,9 @@ class SignUpService(metaclass=Singleton):
         try:
             browser = self._build_browser(proxy)
             self._logger.info("REG_MAIN | Successfully build browser.")
-            browser.get("https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html")
+            # browser.get("https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html")
             # browser.get("https://arh.antoinevastel.com/bots/areyouheadless")
-            # browser.get("https://ads.tiktok.com/i18n/signup/")
+            browser.get("https://ads.tiktok.com/i18n/signup/")
             self._logger.info("REG_MAIN | Get start page.")
         except exceptions.WebDriverException as e:
             self._logger.error(e.msg)
