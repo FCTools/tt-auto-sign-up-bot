@@ -9,13 +9,41 @@ import os
 import random
 import time
 
+import numpy as np
+import scipy.interpolate as si
+
 from random_user_agent.params import SoftwareName, OperatingSystem
 from random_user_agent.user_agent import UserAgent
 from selenium import webdriver
 from selenium.common import exceptions
+from selenium.webdriver import ActionChains
 
 from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
+
+
+def spline_interpolate():
+    points = [[0, 0], [0, 2], [2, 3], [4, 0], [6, 3], [8, 2], [8, 0]]
+    points = np.array(points)
+
+    x = points[:, 0]
+    y = points[:, 1]
+
+    t = range(len(points))
+    ipl_t = np.linspace(0.0, len(points) - 1, 100)
+
+    x_tup = si.splrep(t, x, k=3)
+    y_tup = si.splrep(t, y, k=3)
+
+    x_list = list(x_tup)
+    xl = x.tolist()
+    x_list[1] = xl + [0.0, 0.0, 0.0, 0.0]
+
+    y_list = list(y_tup)
+    yl = y.tolist()
+    y_list[1] = yl + [0.0, 0.0, 0.0, 0.0]
+
+    return si.splev(ipl_t, x_list), si.splev(ipl_t, y_list)
 
 
 class SignUpService(metaclass=Singleton):
@@ -57,9 +85,21 @@ class SignUpService(metaclass=Singleton):
 
         try:
             if xpath:
-                browser.find_element_by_xpath(xpath).click()
+                element = browser.find_element_by_xpath(xpath)
+                action = ActionChains(browser)
+                action.move_to_element(element)
+                action.perform()
+                time.sleep(1)
+                action.click(element)
+                action.perform()
             elif class_name:
-                browser.find_element_by_class_name(class_name).click()
+                element = browser.find_element_by_class_name(class_name)
+                action = ActionChains(browser)
+                action.move_to_element(element)
+                action.perform()
+                time.sleep(1)
+                action.click(element)
+                action.perform()
 
             self._random_sleep()
             return browser
@@ -82,9 +122,21 @@ class SignUpService(metaclass=Singleton):
 
         try:
             if xpath:
-                browser.find_element_by_xpath(xpath).send_keys(value)
+                element = browser.find_element_by_xpath(xpath)
+                action = ActionChains(browser)
+                action.move_to_element(element)
+                action.perform()
+                time.sleep(1)
+                action.send_keys_to_element(element, value)
+                action.perform()
             elif class_name:
-                browser.find_element_by_class_name(class_name).send_keys(value)
+                element = browser.find_element_by_class_name(class_name)
+                action = ActionChains(browser)
+                action.move_to_element(element)
+                action.perform()
+                time.sleep(1)
+                action.send_keys_to_element(element, value)
+                action.perform()
 
             self._random_sleep()
             return browser
@@ -111,7 +163,7 @@ class SignUpService(metaclass=Singleton):
         user_agent = self._random_user_agent()
         self._logger.debug(user_agent)
 
-        options_list = ['start-maximized', 'disable-infobars', '-no-sandbox', '--disable-extensions',
+        options_list = ['start-maximized', '-no-sandbox',
                         f'--proxy-server={proxy_string}', f'user-agent={user_agent}',
                         'window-size=1920x1080', ]
 
