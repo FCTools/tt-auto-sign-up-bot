@@ -9,9 +9,6 @@ import os
 import random
 import time
 
-import numpy as np
-import scipy.interpolate as si
-
 from random_user_agent.params import SoftwareName, OperatingSystem
 from random_user_agent.user_agent import UserAgent
 from selenium import webdriver
@@ -20,30 +17,6 @@ from selenium.webdriver import ActionChains
 
 from domains.services.mail_service import MailService
 from domains.services.singleton import Singleton
-
-
-def spline_interpolate():
-    points = [[0, 0], [0, 2], [2, 3], [4, 0], [6, 3], [8, 2], [8, 0]]
-    points = np.array(points)
-
-    x = points[:, 0]
-    y = points[:, 1]
-
-    t = range(len(points))
-    ipl_t = np.linspace(0.0, len(points) - 1, 100)
-
-    x_tup = si.splrep(t, x, k=3)
-    y_tup = si.splrep(t, y, k=3)
-
-    x_list = list(x_tup)
-    xl = x.tolist()
-    x_list[1] = xl + [0.0, 0.0, 0.0, 0.0]
-
-    y_list = list(y_tup)
-    yl = y.tolist()
-    y_list[1] = yl + [0.0, 0.0, 0.0, 0.0]
-
-    return si.splev(ipl_t, x_list), si.splev(ipl_t, y_list)
 
 
 class SignUpService(metaclass=Singleton):
@@ -198,6 +171,20 @@ class SignUpService(metaclass=Singleton):
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
 
         driver = webdriver.Chrome(options=chrome_options)
+        driver.execute_script("""
+        Object.defineProperty(navigator, 'languages', {
+        get: function() {
+            return ['en-US', 'en'];
+            },
+        });
+
+        Object.defineProperty(navigator, 'plugins', {
+        get: function() {
+            // this just needs to have `length > 0`, but we could mock the plugins too
+        return [1, 2, 3, 4, 5];
+        },
+            });
+        """)
         # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         return driver
@@ -568,7 +555,8 @@ class SignUpService(metaclass=Singleton):
         try:
             browser = self._build_browser(proxy)
             self._logger.info("REG_MAIN | Successfully build browser.")
-            # browser.get("https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html")
+            browser.get("https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html")
+            browser.save_screenshot("screenshot.png")
             # browser.get("https://arh.antoinevastel.com/bots/areyouheadless")
             browser.get("https://ads.tiktok.com/i18n/signup/")
             self._logger.info("REG_MAIN | Get start page.")
