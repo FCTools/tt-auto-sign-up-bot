@@ -56,94 +56,69 @@ class SignUpService(metaclass=Singleton):
     def _click(self, browser, xpath=None, class_name=None, jump=True):
         self._random_sleep()
 
-        try:
-            if xpath:
-                element = browser.find_element_by_xpath(xpath)
-                action = ActionChains(browser)
-                if jump:
-                    action.move_to_element(element)
-                    action.perform()
-                    time.sleep(1)
+        if xpath:
+            element = browser.find_element_by_xpath(xpath)
+            action = ActionChains(browser)
+
+            if jump:
                 action.move_to_element(element)
                 action.perform()
                 time.sleep(1)
-                action.click(element)
+            
+            action.click(element)
+            action.perform()
+
+        elif class_name:
+            element = browser.find_element_by_class_name(class_name)
+            action = ActionChains(browser)
+
+            if jump:
+                action.move_to_element(element)
                 action.perform()
-            elif class_name:
-                element = browser.find_element_by_class_name(class_name)
-                action = ActionChains(browser)
-                if jump:
-                    action.move_to_element(element)
-                    action.perform()
-                    time.sleep(1)
-                action.click(element)
-                action.perform()
+                time.sleep(1)
 
-            self._random_sleep()
-            return browser
+            action.click(element)
+            action.perform()
 
-        except exceptions.InvalidElementStateException as exc:
-            self._logger.error(exc.msg)
-        except exceptions.NoSuchElementException as exc:
-            self._logger.error(exc.msg)
-        except exceptions.InvalidSwitchToTargetException as exc:
-            self._logger.error(exc.msg)
-        except exceptions.WebDriverException as exc:
-            self._logger.error(exc.msg)
-        except Exception as exc:
-            self._logger.error(str(exc))
-
+        self._random_sleep()
         return browser
 
     def _send_keys(self, browser, value, xpath=None, class_name=None, jump=True):
         self._random_sleep()
 
-        try:
-            if xpath:
-                element = browser.find_element_by_xpath(xpath)
-                action = ActionChains(browser)
+        if xpath:
+            element = browser.find_element_by_xpath(xpath)
+            action = ActionChains(browser)
 
-                if jump:
-                    action.move_to_element(element)
-                    action.perform()
-                    time.sleep(1)
-                    action.click(element)
-                    action.perform()
-                    time.sleep(1)
-
-                action.send_keys_to_element(element, value)
-                action.perform()
-            elif class_name:
-                element = browser.find_element_by_class_name(class_name)
-                action = ActionChains(browser)
-                if jump:
-                    action.move_to_element(element)
-                    action.perform()
-                    time.sleep(1)
-                    action.click(element)
-                    action.perform()
-                    time.sleep(1)
-
+            if jump:
                 action.move_to_element(element)
                 action.perform()
                 time.sleep(1)
-                action.send_keys_to_element(element, value)
+                action.click(element)
                 action.perform()
+                time.sleep(1)
 
-            self._random_sleep()
-            return browser
+            action.send_keys_to_element(element, value)
+            action.perform()
 
-        except exceptions.InvalidElementStateException as exc:
-            self._logger.error(exc.msg)
-        except exceptions.NoSuchElementException as exc:
-            self._logger.error(exc.msg)
-        except exceptions.InvalidSwitchToTargetException as exc:
-            self._logger.error(exc.msg)
-        except exceptions.WebDriverException as exc:
-            self._logger.error(exc.msg)
-        except Exception as exc:
-            self._logger.error(str(exc))
+        elif class_name:
+            element = browser.find_element_by_class_name(class_name)
+            action = ActionChains(browser)
+            if jump:
+                action.move_to_element(element)
+                action.perform()
+                time.sleep(1)
+                action.click(element)
+                action.perform()
+                time.sleep(1)
 
+            action.move_to_element(element)
+            action.perform()
+            time.sleep(1)
+            action.send_keys_to_element(element, value)
+            action.perform()
+
+        self._random_sleep()
         return browser
 
     def _build_browser(self, proxy):
@@ -157,9 +132,7 @@ class SignUpService(metaclass=Singleton):
 
         options_list = ['--start-maximized', '--no-sandbox',
                         f'--proxy-server={proxy_string}', f'--user-agent={user_agent}',
-                        '--window-size=1920x1080', ]
-        # options_list = ['--start-maximized', '--no-sandbox', f'--user-agent={user_agent}',
-        #                 '--window-size=1920x1080', 'headless']
+                        '--window-size=1920x1080', '--disable-blink-features=AutomationControlled']
 
         if self._headless:
             options_list.append('headless')
@@ -168,24 +141,8 @@ class SignUpService(metaclass=Singleton):
 
         for option in options_list:
             chrome_options.add_argument(option)
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
 
         driver = webdriver.Chrome(options=chrome_options)
-        driver.execute_script("""
-        Object.defineProperty(navigator, 'languages', {
-        get: function() {
-            return ['en-US', 'en'];
-            },
-        });
-
-        Object.defineProperty(navigator, 'plugins', {
-        get: function() {
-            // this just needs to have `length > 0`, but we could mock the plugins too
-        return [1, 2, 3, 4, 5];
-        },
-            });
-        """)
-        # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         return driver
 
@@ -300,7 +257,7 @@ class SignUpService(metaclass=Singleton):
             browser = self._click(browser, xpath=screen_elements['country_selector_xpath'])
             self._logger.debug("SCREEN 1.2 | Click country selector.")
 
-            browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'], jump=False)
+            browser = self._send_keys(browser, country, xpath=screen_elements['country_field_xpath'], jump=True)
             self._logger.debug('SCREEN 1.2 | Fill country.')
 
             browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
@@ -483,54 +440,77 @@ class SignUpService(metaclass=Singleton):
                                country=None):
         payment_type = "-"
 
-        status, browser = self._solve_screen_1_1(browser, mail, password)
-        self._logger.info("REG_MAIN | Solve screen 1.1")
+        try:
+            status, browser = self._solve_screen_1_1(browser, mail, password)
+        except exceptions.WebDriverException as exc:
+            self._logger.error(f'REG_MAIN 1 | Exception while trying to solve screen 1.1: {exc.msg}')
+            browser.close()
+
+            return f'Exception while trying to solve screen 1.1: {exc.msg}', payment_type
+
+        self._logger.info("REG_MAIN 1 | Solve screen 1.1")
 
         if status != "OK":
-            self._logger.error(f"REG_MAIN | Incorrect status: {status}")
+            self._logger.error(f"REG_MAIN 1 | Incorrect status: {status}")
             browser.close()
             return status, payment_type
 
         time.sleep(15)
 
-        self._logger.info("REG_MAIN | Start screen 1.2 solving...")
+        self._logger.info("REG_MAIN 1 | Start screen 1.2 solving...")
         self._logger.debug(browser.current_url)
 
-        if country:
-            status, browser = self._solve_screen_1_2(browser, mail, country)
-        else:
-            status, browser = self._solve_screen_1_2(browser, mail)
+        try:
+            if country:
+                status, browser = self._solve_screen_1_2(browser, mail, country)
+            else:
+                status, browser = self._solve_screen_1_2(browser, mail)
+        except exceptions.WebDriverException as exc:
+            self._logger.error('REG_MAIN 1 | Exception while trying to solve screen 1.2: {exc.msg}')
+            browser.close()
+            return f'Exception while trying to solve screen 1.2: {exc.msg}', payment_type
 
-        self._logger.info("REG_MAIN | Solve screen 1.2.")
+        self._logger.info("REG_MAIN 1 | Solve screen 1.2.")
 
         time.sleep(30)
         self._logger.debug(browser.current_url)
 
-        self._logger.info("REG_MAIN | Start screen 1.3 solving...")
-        status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
+        self._logger.info("REG_MAIN 1 | Start screen 1.3 solving...")
 
-        self._logger.info(f"REG_MAIN | Solve screen 1.3, status: {status}, payment type: {payment_type}")
+        try:
+            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
+        except WebDriverException as exc:
+            self._logger.error(f'REG_MAIN 1 | Exception while trying to solve screen 1.3: {exc.msg}')
+            browser.close()
+            return f'Exception while trying to solve screen 1.3: {exc.msg}', payment_type
 
+        self._logger.info(f"REG_MAIN 1 | Solve screen 1.3, status: {status}, payment type: {payment_type}")
         self._logger.debug(browser.current_url)
 
         time.sleep(15)
 
         try:
             payment_type, browser = self._get_payment_type(browser)
-        except exceptions.TimeoutException:
-            self._logger.error("Timeout exception. Retrying to get payment status...")
+        except exceptions.WebDriverException as exc:
+            self._logger.error(f"REG_MAIN 1 | Exception while trying to get payment type: {exc.msg}. Try again...")
             browser.refresh()
             time.sleep(10)
 
             try:
                 payment_type, browser = self._get_payment_type(browser)
-            except exceptions.TimeoutException:
-                self._logger.error("Second timeout exception. Skip.")
-                payment_type = "Can't get payment type (network error)."
+            except exceptions.WebDriverException as exc:
+                self._logger.error(f"REG_MAIN 1 | Second exception while trying to get payment type: {exc.msg}. Skip.")
+                payment_type = "Can't get payment type (webdriver error)."
 
-        time.sleep(30)
-        status, browser = self._check_account_status(browser)
-        self._logger.debug(f"Check account status: {status}")
+        time.sleep(60)
+
+        try:
+            status, browser = self._check_account_status(browser)
+        except exceptions.WebDriverException as exc:
+            self._logger.error(f'REG_MAIN 1 | Exception while trying to get account status: {exc.msg}')
+            status = "Can't get account status (webdriver error)."
+
+        self._logger.debug(f"REG_MAIN 1 | Check account status: {status}")
 
         browser.close()
 
@@ -555,9 +535,6 @@ class SignUpService(metaclass=Singleton):
         try:
             browser = self._build_browser(proxy)
             self._logger.info("REG_MAIN | Successfully build browser.")
-            # browser.get("https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html")
-            # browser.save_screenshot("screenshot.png")
-            # browser.get("https://arh.antoinevastel.com/bots/areyouheadless")
             browser.get("https://ads.tiktok.com/i18n/signup/")
             self._logger.info("REG_MAIN | Get start page.")
         except exceptions.WebDriverException as e:
