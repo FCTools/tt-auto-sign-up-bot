@@ -312,8 +312,10 @@ class SignUpService(metaclass=Singleton):
     def _solve_screen_1_3(self, browser, company_website, postal_code, street_address, tax_id):
         screen_elements = self._screens['screens_elements']['screen_1.3']
         self._logger.debug(browser.title)
+        
+        # /html/body/header/div/div[2]/div/div[3]/div/div[1]/div/div
 
-        browser.execute_script(screen_elements['scroll_script'])
+        # browser.execute_script(screen_elements['scroll_script'])
         browser.find_element_by_xpath(screen_elements['account_xpath']).click()
         self._logger.debug("SCREEN 1.3 | Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
@@ -479,7 +481,7 @@ class SignUpService(metaclass=Singleton):
 
         try:
             status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
-        except WebDriverException as exc:
+        except exceptions.WebDriverException as exc:
             self._logger.error(f'REG_MAIN 1 | Exception while trying to solve screen 1.3: {exc.msg}')
             browser.close()
             return f'Exception while trying to solve screen 1.3: {exc.msg}', payment_type

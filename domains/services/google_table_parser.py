@@ -110,6 +110,16 @@ class GoogleTableParser:
         range_ = f"Result!A{free_row}:J{free_row}"
 
         value_input_option = "USER_ENTERED"
+        updated_values = [account.email,
+			   account.password,
+                          account.proxy,
+                          account.country,
+                          account.company_website,
+                          account.street_address,
+                          account.postal_code,
+                          account.tax_id,
+                          status,
+                          account.payment_type]
 
         request = self._service.spreadsheets().values().batchUpdate(spreadsheetId=self._doc_id,
                                                                     body={
@@ -117,18 +127,7 @@ class GoogleTableParser:
                                                                         "data": [
                                                                             {"range": range_,
                                                                              "majorDimension": "ROWS",
-                                                                             "values": [
-                                                                                 [account.email,
-                                                                                  account.password,
-                                                                                  account.proxy,
-                                                                                  account.country,
-                                                                                  account.company_website,
-                                                                                  account.street_address,
-                                                                                  account.postal_code,
-                                                                                  account.tax_id,
-                                                                                  status,
-                                                                                  account.payment_type],
-                                                                             ]}
+                                                                             "values": [updated_values,]}
                                                                         ]
                                                                     })
         # TODO: add network errors catching

@@ -66,29 +66,32 @@ class WorkingLoop:
     def _accounts_register_process(self):
         time.sleep(5)  # time to load accounts to register first time
 
-        while True:
-            if not self._accounts_to_register.empty():
-                with self._lock:
-                    account_to_register = self._accounts_to_register.get()
+        try:
+            while True:
+                if not self._accounts_to_register.empty():
+                    with self._lock:
+                        account_to_register = self._accounts_to_register.get()
 
-                validation_status = account_to_register.validate()
+                    validation_status = account_to_register.validate()
 
-                if validation_status != "OK":
-                    self._logger.debug(f"Invalid account, status: {validation_status}")
-                    status = validation_status
+                    if validation_status != "OK":
+                        self._logger.debug(f"Invalid account, status: {validation_status}")
+                        status = validation_status
+                    else:
+                        self._logger.info(f"Start register for account with email: {account_to_register.email}")
+                        status = account_to_register.sign_up()
+                        self._logger.info(f"Sign up for account {account_to_register.email} completed, status: {status}")
+
+                    self._account_manager.update_sign_up_status(account_to_register, status)
+                    self._logger.info(f"Update status for account {account_to_register.email}.")
+
+                    with self._lock:
+                        self._buffer.remove(account_to_register.email)
                 else:
-                    self._logger.info(f"Start register for account with email: {account_to_register.email}")
-                    status = account_to_register.sign_up()
-                    self._logger.info(f"Sign up for account {account_to_register.email} completed, status: {status}")
-
-                self._account_manager.update_sign_up_status(account_to_register, status)
-                self._logger.info(f"Update status for account {account_to_register.email}.")
-
-                with self._lock:
-                    self._buffer.remove(account_to_register.email)
-            else:
-                self._logger.info(f"Empty queue, sleep for {self._checking_timeout} seconds.")
-                time.sleep(self._checking_timeout)
+                    self._logger.info(f"Empty queue, sleep for {self._checking_timeout} seconds.")
+                    time.sleep(self._checking_timeout)
+        except:
+            pass
 
     def _extend_queue(self):
         accounts_to_sign_up = self._account_manager.get_accounts_to_sign_up()
@@ -108,8 +111,16 @@ class WorkingLoop:
         self._logger.info("Start table monitoring process.")
 
         while True:
-            self._extend_queue()
+            try:
+            	self._extend_queue()
+            except:
+            	pass
+            		
             time.sleep(self._checking_timeout)
+            
+            if not self._sign_up_thread.is_alive():
+                self._sign_up_thread = Thread(target=self._accounts_register_process, args=(), daemon=True)
+                self._sign_up_thread.start()
 
     def launch(self):
         self._process()
