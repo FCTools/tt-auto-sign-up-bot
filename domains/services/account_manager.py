@@ -30,8 +30,9 @@ class AccountManager:
         result = []
         new_entries = self._get_updates()
 
+        # there are 13 fields in account credentials
         for account in new_entries:
-            if account and len(account) == 9 and int(account[-1]):
+            if account and len(account) == 13 and int(account[-1]):
                 result.append(TikTokAccount(account))
 
         return result

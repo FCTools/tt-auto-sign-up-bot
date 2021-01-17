@@ -107,17 +107,21 @@ class GoogleTableParser:
 
     def _add_account_to_list_2(self, account, status):
         free_row = self._filled_rows_on_page_2()
-        range_ = f"Result!A{free_row}:J{free_row}"
+        range_ = f"Result!A{free_row}:O{free_row}"
 
         value_input_option = "USER_ENTERED"
         updated_values = [account.email,
-			   account.password,
+                          account.password,
                           account.proxy,
                           account.country,
+                          account.business_name,
+                          account.phone,
+                          account.timezone,
                           account.company_website,
                           account.street_address,
                           account.postal_code,
-                          account.tax_id,
+                          account.vat_number,
+                          account.company_reg_number,
                           status,
                           account.payment_type]
 
@@ -127,7 +131,7 @@ class GoogleTableParser:
                                                                         "data": [
                                                                             {"range": range_,
                                                                              "majorDimension": "ROWS",
-                                                                             "values": [updated_values,]}
+                                                                             "values": [updated_values, ]}
                                                                         ]
                                                                     })
         # TODO: add network errors catching

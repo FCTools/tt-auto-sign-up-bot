@@ -33,7 +33,9 @@
       "phone_number_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[2]/div[2]/div/div[1]/input",
       "agreement_checkbox_xpath": "//*[@id=\"form-item-vw\"]/div[1]/div[2]/label/span/span",
       "submit_button_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[4]/div/button",
-      "default_currency": "USD"
+      "default_currency": "USD",
+      "tz_selector_xpath": "//*[@id=\"app\"]/section/div[1]/section/div/div/section/div[5]/div/section/form/div[1]/div[2]/div[1]/div/div/div[1]/span/span/i",
+      "tz_field_xpath_to_click": "//*[contains(text(), '{}')]"
     },
     "screen_2.2":
     {

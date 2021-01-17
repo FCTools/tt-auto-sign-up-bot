@@ -241,14 +241,15 @@ class SignUpService(metaclass=Singleton):
     def _random_sleep():
         time.sleep(random.randint(1, 3))
 
-    def _solve_screen_1_2(self, browser, mail, country=None):
+    def _solve_screen_1_2(self, browser, business_name, phone, tz, country=None):
+        if country == 'USA':
+            country = 'United States'
+
         browser = self._accept_cookie_policy(browser)
 
         screen_elements = self._screens['screens_elements']['screen_1.2']
 
         default_currency = screen_elements['default_currency']
-        business_name = mail.split('@')[0]
-        phone_number = self._random_phone_number()
 
         if country:
             browser = self._click(browser, xpath=screen_elements['country_edit_xpath'])
@@ -262,6 +263,12 @@ class SignUpService(metaclass=Singleton):
 
             browser = self._click(browser, xpath=screen_elements['country_field_xpath_to_click'].format(country))
             self._logger.debug("SCREEN 1.2 | Select country.")
+
+            browser = self._send_keys(browser, tz, xpath=screen_elements['tz_selector_xpath'], jump=True)
+            self._logger.debug('SCREEN 1.2 | Fill timezone.')
+
+            browser = self._click(browser, xpath=screen_elements['tz_field_xpath_to_click'].format(tz))
+            self._logger.debug("SCREEN 1.2 | Select timezone.")
             time.sleep(5)
         else:
             self._logger.debug("SCREEN 1.2 | No country given, set default.")
@@ -269,7 +276,7 @@ class SignUpService(metaclass=Singleton):
         browser = self._send_keys(browser, business_name, xpath=screen_elements['business_name_xpath'])
         self._logger.debug("SCREEN 1.2 | Fill business name.")
 
-        browser = self._send_keys(browser, phone_number, xpath=screen_elements['phone_number_xpath'])
+        browser = self._send_keys(browser, phone, xpath=screen_elements['phone_number_xpath'])
         self._logger.debug("SCREEN 1.2 | Fill phone number.")
 
         browser = self._click(browser, xpath=screen_elements['agreement_checkbox_xpath'])
@@ -309,13 +316,10 @@ class SignUpService(metaclass=Singleton):
 
         return "OK"
 
-    def _solve_screen_1_3(self, browser, company_website, postal_code, street_address, tax_id):
+    def _solve_screen_1_3(self, browser, company_website, postal_code, street_address):
         screen_elements = self._screens['screens_elements']['screen_1.3']
         self._logger.debug(browser.title)
         
-        # /html/body/header/div/div[2]/div/div[3]/div/div[1]/div/div
-
-        # browser.execute_script(screen_elements['scroll_script'])
         browser.find_element_by_xpath(screen_elements['account_xpath']).click()
         self._logger.debug("SCREEN 1.3 | Click account button.")
         browser = self._click(browser, xpath=screen_elements['account_info_xpath'])
@@ -360,11 +364,11 @@ class SignUpService(metaclass=Singleton):
         self._logger.info("SCREEN 1.3 | Fill company website, industry, street address, state/province, "
                           "postal code on screen 1.3.")
 
-        if len(browser.find_elements_by_xpath(screen_elements['tax_id_xpath'])) > 0:
-            browser = self._send_keys(browser, tax_id, xpath=screen_elements['tax_id_xpath'])
-            self._logger.info("SCREEN 1.3 | Fill tax id.")
-        else:
-            self._logger.info('SCREEN 1.3 | No tax_id found on the page.')
+        # if len(browser.find_elements_by_xpath(screen_elements['tax_id_xpath'])) > 0:
+        #     browser = self._send_keys(browser, tax_id, xpath=screen_elements['tax_id_xpath'])
+        #     self._logger.info("SCREEN 1.3 | Fill tax id.")
+        # else:
+        #     self._logger.info('SCREEN 1.3 | No tax_id found on the page.')
 
         if len(browser.find_elements_by_xpath(screen_elements['city_label_xpath'])) > 0 and \
                 browser.find_element_by_xpath(screen_elements['city_label_xpath']).text == 'City':
@@ -438,7 +442,11 @@ class SignUpService(metaclass=Singleton):
                                company_website,
                                street_address,
                                postal_code,
-                               tax_id,
+                               vat_number,
+                               company_reg_number,
+                               business_name,
+                               phone,
+                               timezone,
                                country=None):
         payment_type = "-"
 
@@ -464,9 +472,9 @@ class SignUpService(metaclass=Singleton):
 
         try:
             if country:
-                status, browser = self._solve_screen_1_2(browser, mail, country)
+                status, browser = self._solve_screen_1_2(browser, business_name, phone, timezone, country)
             else:
-                status, browser = self._solve_screen_1_2(browser, mail)
+                status, browser = self._solve_screen_1_2(browser, business_name, phone, timezone)
         except exceptions.WebDriverException as exc:
             self._logger.error('REG_MAIN 1 | Exception while trying to solve screen 1.2: {exc.msg}')
             browser.close()
@@ -480,7 +488,7 @@ class SignUpService(metaclass=Singleton):
         self._logger.info("REG_MAIN 1 | Start screen 1.3 solving...")
 
         try:
-            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address, tax_id)
+            status, browser = self._solve_screen_1_3(browser, company_website, postal_code, street_address)
         except exceptions.WebDriverException as exc:
             self._logger.error(f'REG_MAIN 1 | Exception while trying to solve screen 1.3: {exc.msg}')
             browser.close()
@@ -523,10 +531,14 @@ class SignUpService(metaclass=Singleton):
                 password,
                 proxy,
                 country,
+                business_name,
+                phone,
+                timezone,
                 company_website,
                 street_address,
                 postal_code,
-                tax_id):
+                vat_number,
+                company_reg_number):
         payment_type = "-"
 
         if not self._mail_service.correct_credentials(mail, password):
@@ -550,7 +562,8 @@ class SignUpService(metaclass=Singleton):
             self._logger.info("REG_MAIN | Screen 1.1 was detected. Start registration branch 1.")
 
             return self._registration_branch_1(browser, mail, password, company_website,
-                                               street_address, postal_code, tax_id, country=country)
+                                               street_address, postal_code, vat_number,
+                                               company_reg_number, business_name, phone, timezone, country=country)
 
         elif self._detect_screen(browser) == 2:
             self._logger.debug("REG_MAIN | Detect screen 2.1. Start registration branch 2.")
@@ -567,4 +580,5 @@ class SignUpService(metaclass=Singleton):
             self._logger.info('REG_MAIN | Proxy status is OK, continue registration (switch to branch 1).')
 
             return self._registration_branch_1(browser, mail, password, company_website,
-                                               street_address, postal_code, tax_id)
+                                               street_address, postal_code, vat_number,
+                                               company_reg_number, business_name, phone, timezone)

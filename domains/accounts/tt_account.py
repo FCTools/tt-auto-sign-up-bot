@@ -14,11 +14,14 @@ class TikTokAccount:
         self._password = credentials[1]
         self._proxy = credentials[2]
         self._country = credentials[3]
-        self._company_website = credentials[4]
-        self._street_address = credentials[5]
-        self._postal_code = credentials[6]
-
-        self._tax_id = credentials[7]
+        self._business_name = credentials[4]
+        self._phone = credentials[5]
+        self._timezone = credentials[6]
+        self._company_website = credentials[7]
+        self._street_address = credentials[8]
+        self._postal_code = credentials[9]
+        self._vat_number = credentials[10]
+        self._company_reg_number = credentials[11]
         self._payment_type = None
 
         self._signed_up = signed_up
@@ -28,6 +31,26 @@ class TikTokAccount:
     @property
     def email(self):
         return self._mail
+
+    @property
+    def business_name(self):
+        return self._business_name
+
+    @property
+    def timezone(self):
+        return self._timezone
+
+    @property
+    def phone(self):
+        return self._phone
+
+    @property
+    def vat_number(self):
+        return self._vat_number
+
+    @property
+    def company_reg_number(self):
+        return self._company_reg_number
 
     @property
     def password(self):
@@ -54,10 +77,6 @@ class TikTokAccount:
         return self._postal_code
 
     @property
-    def tax_id(self):
-        return self._tax_id
-
-    @property
     def payment_type(self):
         if self._payment_type:
             return self._payment_type
@@ -73,10 +92,14 @@ class TikTokAccount:
                                                              password=self._password,
                                                              proxy=self._proxy,
                                                              country=self._country,
+                                                             business_name=self._business_name,
+                                                             phone=self._phone,
+                                                             timezone=self._timezone,
                                                              company_website=self._company_website,
                                                              street_address=self._street_address,
                                                              postal_code=self._postal_code,
-                                                             tax_id=self._tax_id)
+                                                             vat_number=self._vat_number,
+                                                             company_reg_number=self._company_reg_number)
         self._payment_type = payment_type
 
         if status != "OK":
